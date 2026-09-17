@@ -15,6 +15,7 @@ interface OTPEntryInterface {
   encryption?: EncryptionInterface;
   // Last TOTP time step the code was generated for; -1 forces a refresh.
   lastCodeStep?: number;
+  timeout: boolean;
   create(): Promise<void>;
   update(): Promise<void>;
   next(): Promise<void>;

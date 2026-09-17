@@ -607,7 +607,7 @@ svg {
   height: 24px;
 }
 #codes:not(.edit) .code.timeout:not(.hotp) {
-  animation: twinkling 1s infinite ease-in-out;
+  color: #dd4b39;
 }
 .theme-normal #codes .no-entry {
   color: grey;
@@ -1841,30 +1841,6 @@ svg {
     transform: rotate(270deg);
   }
 }
-@keyframes twinkling {
-  0% {
-    color: #eea59c;
-  }
-  100% {
-    color: #dd4b39;
-  }
-}
-@keyframes flash {
-  0%, 33% {
-    opacity: 0;
-  }
-  33.1%, 100% {
-    opacity: 1;
-  }
-}
-@keyframes glint {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.15;
-  }
-}
 @keyframes fadeshow {
   0% {
     opacity: 0;
@@ -2067,7 +2043,7 @@ svg {
 }
 
 .theme-dark #codes:not(.edit) .code.timeout:not(.hotp) {
-  animation: glint 1s infinite;
+  color: #dd4b39;
 }
 .theme-dark .message-box,
 .theme-dark #info {
@@ -2206,7 +2182,7 @@ svg {
   fill: yellow;
 }
 .theme-accessibility #codes:not(.edit) .code.timeout:not(.hotp) {
-  animation: flash 1s infinite;
+  color: #dd4b39;
 }
 .theme-accessibility #info {
   border: 1px solid white;

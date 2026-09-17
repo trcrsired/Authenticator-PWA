@@ -64,6 +64,9 @@ export class OTPEntry implements OTPEntryInterface {
   encSecret?: string;
   // Last TOTP time step the code was generated for; unset forces a refresh.
   lastCodeStep?: number;
+  // True in the last seconds of the period (drives the red highlight);
+  // kept as an entry field so Vue only re-renders when it flips.
+  timeout = false;
   keyId?: string;
   code = "&bull;&bull;&bull;&bull;&bull;&bull;";
 

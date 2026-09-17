@@ -58,7 +58,7 @@
       v-bind:class="{
         code: true,
         hotp: entry.type === OTPType.hotp || entry.type === OTPType.hhex,
-        timeout: entry.period - (second % entry.period) < 5,
+        timeout: entry.timeout,
       }"
       v-html="style.isEditing ? showBulls(entry) : showCode(entry.code)"
     ></div>
@@ -104,7 +104,6 @@ const computedPrototype = [
     "OTPType",
     "sectorStart",
     "sectorOffset",
-    "second",
     "encryption",
   ]),
   mapState("style", ["style"]),

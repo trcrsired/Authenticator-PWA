@@ -127,7 +127,9 @@ export class Accounts implements Module {
           // }
           const entries = state.entries as OTPEntryInterface[];
           // Codes only change at each period boundary — skip the HMAC
-          // unless the time step actually moved.
+          // unless the time step actually moved. The timeout flag is a
+          // per-entry boolean so Vue re-renders only when it flips,
+          // not every second.
           const epoch =
             Math.floor(Date.now() / 1000) +
             Number(UserSettings.items.offset || 0);
@@ -143,6 +145,10 @@ export class Accounts implements Module {
             if (entry.lastCodeStep !== step) {
               entry.lastCodeStep = step;
               entry.generate();
+            }
+            const timeout = entry.period - (epoch % entry.period) < 5;
+            if (entry.timeout !== timeout) {
+              entry.timeout = timeout;
             }
           }
         },
