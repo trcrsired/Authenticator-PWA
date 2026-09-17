@@ -15,6 +15,7 @@ export class Style implements Module {
           notificationFadein: false,
           notificationFadeout: false,
           hotpDisabled: false,
+          appLocked: false,
         },
       },
       mutations: {
@@ -75,6 +76,9 @@ export class Style implements Module {
         },
         toggleHotpDisabled(state: StyleState) {
           state.style.hotpDisabled = !state.style.hotpDisabled;
+        },
+        setAppLocked(state: StyleState, locked: boolean) {
+          state.style.appLocked = locked;
         },
       },
       getters: {

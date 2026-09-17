@@ -17,9 +17,7 @@ const CORE_ASSETS = [
   "/dist/options.js",
   "/view/import",
   "/view/options",
-  "/images/icon.svg",
-  "/images/icon48.png",
-  "/images/icon128.png",
+  "/images/icon.webp",
   "/wasm/otp.wasm",
 ];
 

@@ -24,9 +24,11 @@ interface UserSettingsData {
 
   // syncable settings
   advisorIgnoreList?: string[];
-  autofill?: boolean;
   autolock?: number;
   enableContextMenu?: boolean;
+  requireUserVerification?: boolean;
+  requireUnlockVerification?: boolean;
+  uvCredentialId?: string;
   encodedPhrase?: string;
   smartFilter?: boolean;
   theme?: string;
@@ -175,7 +177,6 @@ export class UserSettings {
 }
 
 type BooleanOption =
-  | "autofill"
   | "driveEncrypted"
   | "driveRevoked"
   | "dropboxEncrypted"
@@ -184,6 +185,8 @@ type BooleanOption =
   | "oneDriveBusiness"
   | "oneDriveEncrypted"
   | "oneDriveRevoked"
+  | "requireUnlockVerification"
+  | "requireUserVerification"
   | "smartFilter";
 
 type NumberOption = "autolock" | "lastRemindingBackupTime" | "offset" | "zoom";
@@ -192,7 +195,6 @@ type JSONOption = "advisorIgnoreList";
 
 function isBooleanOption(key: string): key is BooleanOption {
   return [
-    "autofill",
     "driveEncrypted",
     "driveRevoked",
     "dropboxEncrypted",
@@ -201,6 +203,8 @@ function isBooleanOption(key: string): key is BooleanOption {
     "oneDriveBusiness",
     "oneDriveEncrypted",
     "oneDriveRevoked",
+    "requireUnlockVerification",
+    "requireUserVerification",
     "smartFilter",
   ].includes(key);
 }

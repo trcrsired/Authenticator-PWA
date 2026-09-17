@@ -30,7 +30,6 @@
       <option value="25">25%</option>
       <option value="20">20%</option>
     </a-select-input>
-    <a-toggle-input :label="i18n.use_autofill" v-model="useAutofill" />
     <a-toggle-input
       :label="i18n.browser_sync"
       v-model="browserSync"
@@ -38,6 +37,14 @@
       @change="migrateStorage()"
     />
     <a-toggle-input :label="i18n.smart_filter" v-model="smartFilter" />
+    <a-toggle-input
+      :label="i18n.require_user_verification"
+      v-model="userVerification"
+    />
+    <a-toggle-input
+      :label="i18n.require_unlock_verification"
+      v-model="unlockVerification"
+    />
 
     <div class="control-group" v-show="!!defaultEncryption">
       <label class="combo-label">{{ i18n.autolock }}</label>
@@ -60,6 +67,7 @@
 import Vue from "vue";
 import { isFirefox } from "../../browser";
 import { UserSettings } from "../../models/settings";
+import { enrollUserVerification } from "../../models/user-verification";
 
 export default Vue.extend({
   computed: {
@@ -71,12 +79,34 @@ export default Vue.extend({
         this.$store.commit("menu/setZoom", zoom);
       },
     },
-    useAutofill: {
+    userVerification: {
       get(): boolean {
-        return this.$store.state.menu.useAutofill;
+        return this.$store.state.menu.useUserVerification;
       },
-      set(useAutofill: boolean) {
-        this.$store.commit("menu/setAutofill", useAutofill);
+      async set(enabled: boolean) {
+        if (!enabled) {
+          this.$store.commit("menu/setUserVerification", false);
+          return;
+        }
+        if (!(await this.ensureCredential())) {
+          return;
+        }
+        this.$store.commit("menu/setUserVerification", true);
+      },
+    },
+    unlockVerification: {
+      get(): boolean {
+        return this.$store.state.menu.useUnlockVerification;
+      },
+      async set(enabled: boolean) {
+        if (!enabled) {
+          this.$store.commit("menu/setUnlockVerification", false);
+          return;
+        }
+        if (!(await this.ensureCredential())) {
+          return;
+        }
+        this.$store.commit("menu/setUnlockVerification", true);
       },
     },
     smartFilter: {
@@ -143,6 +173,24 @@ export default Vue.extend({
     });
   },
   methods: {
+    // Reuse the already-enrolled platform credential when present;
+    // otherwise run WebAuthn enrollment (biometric/screen lock prompt).
+    async ensureCredential(): Promise<boolean> {
+      if (UserSettings.items.uvCredentialId) {
+        return true;
+      }
+      const credentialId = await enrollUserVerification();
+      if (!credentialId) {
+        this.$store.commit(
+          "notification/ephermalMessage",
+          this.i18n.verification_failed
+        );
+        return false;
+      }
+      UserSettings.items.uvCredentialId = credentialId;
+      UserSettings.commitItems();
+      return true;
+    },
     popOut() {
       let windowType;
       if (isFirefox) {

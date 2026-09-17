@@ -23,6 +23,7 @@ import BackupPage from "./BackupPage.vue";
 import PreferencesPage from "./PreferencesPage.vue";
 import AdvisorPage from "./AdvisorPage.vue";
 import ImportPage from "./ImportPage.vue";
+import QrScanPage from "./QrScanPage.vue";
 import LoadingPage from "./LoadingPage.vue";
 
 export default Vue.extend({
@@ -46,6 +47,7 @@ export default Vue.extend({
     PreferencesPage,
     AdvisorPage,
     ImportPage,
+    QrScanPage,
     LoadingPage,
   },
 });

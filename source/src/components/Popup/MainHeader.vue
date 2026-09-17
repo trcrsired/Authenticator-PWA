@@ -96,7 +96,6 @@ export default Vue.extend({
         height: window.innerHeight,
         width: window.innerWidth,
       });
-      window.close();
     },
     showMenu() {
       this.$store.commit("style/showMenu");
@@ -118,7 +117,7 @@ export default Vue.extend({
       this.$store.commit("accounts/stopFilter");
     },
     lock() {
-      chrome.runtime.sendMessage({ action: "lock" }, window.close);
+      chrome.runtime.sendMessage({ action: "lock" });
       return;
     },
     async beginCapture() {
@@ -136,8 +135,7 @@ export default Vue.extend({
         return;
       }
 
-      // No screen capture in the PWA yet — use image file import.
-      this.showInfo("ImportPage", "QrImport");
+      this.showInfo("QrScanPage");
     },
   },
   components: {

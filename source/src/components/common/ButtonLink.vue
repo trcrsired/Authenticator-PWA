@@ -4,6 +4,7 @@
     :download="download"
     :class="{ 'button-small': type === 'small', button: !type }"
     target="_blank"
+    v-on="$listeners"
   >
     <slot></slot>
   </a>

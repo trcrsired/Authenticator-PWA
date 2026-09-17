@@ -25,7 +25,7 @@ import Vue from "vue";
 import {
   decryptBackupData,
   getEntryDataFromOTPAuthPerLine,
-} from "../../import";
+} from "../../models/import-backup";
 import { EntryStorage } from "../../models/storage";
 import { Encryption } from "../../models/encryption";
 
@@ -136,7 +136,7 @@ export default Vue.extend({
             }
 
             if (closeWindow) {
-              window.close();
+              this.closeImport();
             }
           } else {
             alert(this.i18n.migration_fail);
@@ -148,10 +148,21 @@ export default Vue.extend({
       } else {
         alert(this.i18n.migration_fail);
         if (closeWindow) {
-          window.close();
+          this.closeImport();
         }
       }
       return;
+    },
+    closeImport() {
+      if (this.$store) {
+        // Embedded in the main app: close the info panel
+        this.$store.commit("style/hideInfo");
+      } else {
+        // Standalone import page: close the tab if script-opened,
+        // otherwise navigate back to the app
+        window.close();
+        location.href = "/";
+      }
     },
     async getOldPassphrase() {
       this.getFilePassphrase = true;

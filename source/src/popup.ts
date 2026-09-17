@@ -24,6 +24,7 @@ import { Qr } from "./store/Qr";
 import { Advisor } from "./store/Advisor";
 import { UserSettings } from "./models/settings";
 import { initOtpWasm } from "./models/wasm-otp";
+import { verifyUser } from "./models/user-verification";
 
 async function init() {
   // Crypto falls back to the JS implementation if the wasm fetch fails
@@ -84,6 +85,20 @@ async function init() {
       }, 1000);
     },
   }).$mount("#authenticator");
+
+  // Gate app open behind platform verification (Face ID / fingerprint /
+  // screen lock) when enabled. Tapping the overlay retries.
+  if (
+    instance.$store.state.menu.useUnlockVerification &&
+    UserSettings.items.uvCredentialId
+  ) {
+    instance.$store.commit("style/setAppLocked", true);
+    verifyUser(UserSettings.items.uvCredentialId).then((ok) => {
+      if (ok) {
+        instance.$store.commit("style/setAppLocked", false);
+      }
+    });
+  }
 
   // Prompt for password if needed
   if (instance.$store.state.accounts.shouldShowPassphrase) {

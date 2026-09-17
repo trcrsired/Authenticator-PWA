@@ -293,9 +293,25 @@
     "message": "Manual Backup",
     "description": "Manual backup"
   },
-  "use_autofill": {
-    "message": "Use Autofill",
-    "description": "Use Autofill"
+  "require_user_verification": {
+    "message": "Require biometric verification (Face ID, fingerprint, or screen lock) to export backups",
+    "description": "Require device user verification before exporting backups"
+  },
+  "verification_failed": {
+    "message": "Verification failed or was cancelled.",
+    "description": "User verification failed"
+  },
+  "require_unlock_verification": {
+    "message": "Require biometric verification (Face ID, fingerprint, or screen lock) to open the app",
+    "description": "Require device user verification to unlock the app"
+  },
+  "tap_to_unlock": {
+    "message": "Tap to unlock",
+    "description": "Tap to verify and unlock the app"
+  },
+  "no_file_chosen": {
+    "message": "No file chosen",
+    "description": "File input placeholder text"
   },
   "use_high_contrast": {
     "message": "Use High Contrast",
@@ -426,11 +442,12 @@
   "advisor_insight_auto_lock_not_set": {
     "message": "Enable auto-lock to protect your data."
   },
+  "advisor_insight_backup_reminder": {
+    "message": "Always keep a backup of your codes somewhere you trust (Menu → Backup). Browser storage is not guaranteed to be stable — it can be cleared by low disk space, clearing site data, or reinstalling, and your codes would be lost.",
+    "description": "Advisor insight reminding users to back up their codes"
+  },
   "advisor_insight_browser_sync_not_enabled": {
     "message": "Browser sync is disabled. Enabling it allows accounts to be synced across browsers."
-  },
-  "advisor_insight_auto_fill_not_enabled": {
-    "message": "Autofill can be enabled to automatically fill codes into websites."
   },
   "advisor_insight_smart_filter_not_enabled": {
     "message": "Enabling smart filter allows for quick access to accounts."

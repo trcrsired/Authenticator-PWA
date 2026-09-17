@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div @touchstart.passive="onTouchStart" @touchend="onTouchEnd">
     <div class="header">
       <span id="menuName">{{ i18n.settings }}</span>
       <div class="icon" id="i-close" v-on:click="hideMenu()">
@@ -101,7 +101,28 @@ export default Vue.extend({
       },
     },
   },
+  data() {
+    return {
+      touchStartX: 0,
+      touchStartY: 0,
+    };
+  },
   methods: {
+    onTouchStart(e: TouchEvent) {
+      const touch = e.touches[0];
+      this.touchStartX = touch.clientX;
+      this.touchStartY = touch.clientY;
+    },
+    // Swipe left on the menu closes it (the back arrow is too small
+    // a touch target on mobile).
+    onTouchEnd(e: TouchEvent) {
+      const touch = e.changedTouches[0];
+      const dx = touch.clientX - this.touchStartX;
+      const dy = touch.clientY - this.touchStartY;
+      if (dx < -60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        this.hideMenu();
+      }
+    },
     hideMenu() {
       this.$store.commit("style/hideMenu");
     },

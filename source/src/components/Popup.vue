@@ -63,6 +63,11 @@
 
     <!-- CLIPBOARD -->
     <input type="text" id="codeClipboard" tabindex="-1" />
+
+    <!-- APP LOCK (WebAuthn gate) -->
+    <div id="appLock" v-if="style.appLocked" v-on:click="unlockApp()">
+      <p>{{ i18n.tap_to_unlock }}</p>
+    </div>
   </div>
 </template>
 <script lang="ts">
@@ -74,6 +79,8 @@ import MainBody from "./Popup/MainBody.vue";
 import MenuPage from "./Popup/MenuPage.vue";
 import PageHandler from "./Popup/PageHandler.vue";
 import NotificationHandler from "./Popup/NotificationHandler.vue";
+import { verifyUser } from "../models/user-verification";
+import { UserSettings } from "../models/settings";
 
 const computedPrototype = [
   mapState("style", ["style"]),
@@ -98,6 +105,12 @@ export default Vue.extend({
   methods: {
     hideQr() {
       this.$store.commit("style/hideQr");
+    },
+    async unlockApp() {
+      const credentialId = UserSettings.items.uvCredentialId;
+      if (!credentialId || (await verifyUser(credentialId))) {
+        this.$store.commit("style/setAppLocked", false);
+      }
     },
   },
   components: {

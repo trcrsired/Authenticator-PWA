@@ -10,8 +10,11 @@ export class Menu implements Module {
       state: {
         version: chrome.runtime.getManifest()?.version || "0.0.0",
         zoom: Number(UserSettings.items.zoom) || 100,
-        useAutofill: UserSettings.items.autofill === true,
         smartFilter: UserSettings.items.smartFilter === true,
+        useUserVerification:
+          UserSettings.items.requireUserVerification === true,
+        useUnlockVerification:
+          UserSettings.items.requireUnlockVerification === true,
         enableContextMenu: UserSettings.items.enableContextMenu === true,
         theme: UserSettings.items.theme || (isSafari ? "flat" : "auto"),
         browserDark:
@@ -48,14 +51,27 @@ export class Menu implements Module {
           UserSettings.commitItems();
           this.resize(zoom);
         },
-        setAutofill(state: MenuState, useAutofill: boolean) {
-          state.useAutofill = useAutofill;
-          UserSettings.items.autofill = useAutofill;
-          UserSettings.commitItems();
-        },
         setSmartFilter(state: MenuState, smartFilter: boolean) {
           state.smartFilter = smartFilter;
           UserSettings.items.smartFilter = smartFilter;
+          UserSettings.commitItems();
+        },
+        // The two verification toggles share one enrolled platform
+        // credential (uvCredentialId); it is only cleared when both are off.
+        setUserVerification(state: MenuState, enabled: boolean) {
+          state.useUserVerification = enabled;
+          UserSettings.items.requireUserVerification = enabled;
+          if (!enabled && !UserSettings.items.requireUnlockVerification) {
+            delete UserSettings.items.uvCredentialId;
+          }
+          UserSettings.commitItems();
+        },
+        setUnlockVerification(state: MenuState, enabled: boolean) {
+          state.useUnlockVerification = enabled;
+          UserSettings.items.requireUnlockVerification = enabled;
+          if (!enabled && !UserSettings.items.requireUserVerification) {
+            delete UserSettings.items.uvCredentialId;
+          }
           UserSettings.commitItems();
         },
         setEnableContextMenu(state: MenuState, enableContextMenu: boolean) {

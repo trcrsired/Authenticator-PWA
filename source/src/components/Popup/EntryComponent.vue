@@ -90,7 +90,6 @@ import { mapState, mapGetters } from "vuex";
 import * as QRGen from "qrcode-generator";
 import { OTPEntry, OTPType, CodeState, OTPAlgorithm } from "../../models/otp";
 import { EntryStorage } from "../../models/storage";
-import { getCurrentTab, okToInjectContentScript } from "../../utils";
 
 import IconMinusCircle from "../../../svg/minus-circle.svg";
 import IconRedo from "../../../svg/redo.svg";
@@ -220,17 +219,6 @@ export default Vue.extend({
               return;
             }
 
-            if (this.$store.state.menu.useAutofill) {
-              await insertContentScript();
-              const tab = await getCurrentTab();
-              if (tab && tab.id) {
-                chrome.tabs.sendMessage(tab.id, {
-                  action: "pastecode",
-                  code: entry.code,
-                });
-              }
-            }
-
             const lastActiveElement = document.activeElement as HTMLElement;
             codeClipboard.value = entry.code;
             codeClipboard.focus();
@@ -292,19 +280,5 @@ function getQrUrl(entry: OTPEntry) {
   qr.addData(otpauth);
   qr.make();
   return qr.createDataURL(5);
-}
-
-async function insertContentScript() {
-  let tab = await getCurrentTab();
-  if (okToInjectContentScript(tab)) {
-    await chrome.scripting.executeScript({
-      target: { tabId: tab.id },
-      files: ["/dist/content.js"],
-    });
-    await chrome.scripting.insertCSS({
-      target: { tabId: tab.id },
-      files: ["/css/content.css"],
-    });
-  }
 }
 </script>

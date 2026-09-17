@@ -33,8 +33,9 @@ interface MenuState {
   version: string;
   zoom: number;
   autolock: number;
-  useAutofill: boolean;
   smartFilter: boolean;
+  useUserVerification: boolean;
+  useUnlockVerification: boolean;
   enableContextMenu: boolean;
   theme: string;
   backupDisabled: boolean;
@@ -55,6 +56,7 @@ interface StyleState {
     notificationFadein: boolean;
     notificationFadeout: boolean;
     hotpDisabled: boolean;
+    appLocked: boolean;
   };
 }
 

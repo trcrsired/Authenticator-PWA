@@ -18,6 +18,7 @@
         download="authenticator.txt"
         :href="exportOneLineOtpAuthFile"
         v-if="!unsupportedAccounts && isDataLinkSupported"
+        @click="onExportClick($event, exportOneLineOtpAuthFile, 'authenticator.txt')"
         >{{ i18n.download_backup }}</a-button-link
       >
       <button
@@ -31,6 +32,7 @@
         download="authenticator.json"
         :href="exportFile"
         v-if="unsupportedAccounts && isDataLinkSupported"
+        @click="onExportClick($event, exportFile, 'authenticator.json')"
         >{{ i18n.download_backup }}</a-button-link
       >
       <button
@@ -44,6 +46,7 @@
         download="authenticator.json"
         :href="exportEncryptedFile"
         v-if="!!defaultEncryption && isDataLinkSupported"
+        @click="onExportClick($event, exportEncryptedFile, 'authenticator.json')"
         >{{ i18n.download_enc_backup }}</a-button-link
       >
       <button
@@ -60,6 +63,8 @@
 <script lang="ts">
 import Vue from "vue";
 import { isSafari } from "../../browser";
+import { UserSettings } from "../../models/settings";
+import { verifyUser } from "../../models/user-verification";
 
 export default Vue.extend({
   data: function () {
@@ -95,17 +100,58 @@ export default Vue.extend({
     showImport() {
       this.$store.commit("currentView/changeView", "ImportPage");
     },
-    downloadBackUpOneLineOtpAuthFile() {
+    // Gate exports behind platform user verification (biometric/screen
+    // lock) when enabled. When verification is off, the anchor's native
+    // download proceeds untouched.
+    async onExportClick(event: MouseEvent, url: string, filename: string) {
+      if (!this.$store.state.menu.useUserVerification) {
+        return;
+      }
+      event.preventDefault();
+      if (!(await this.verifyBeforeExport())) {
+        return;
+      }
+      const anchor = document.createElement("a");
+      anchor.href = url;
+      anchor.download = filename;
+      document.body.appendChild(anchor);
+      anchor.click();
+      anchor.remove();
+    },
+    async verifyBeforeExport(): Promise<boolean> {
+      const credentialId = UserSettings.items.uvCredentialId;
+      if (!credentialId) {
+        return true;
+      }
+      const ok = await verifyUser(credentialId);
+      if (!ok) {
+        this.$store.commit(
+          "notification/ephermalMessage",
+          this.i18n.verification_failed
+        );
+      }
+      return ok;
+    },
+    async downloadBackUpOneLineOtpAuthFile() {
+      if (!(await this.verifyBeforeExport())) {
+        return;
+      }
       const exportData = this.$store.state.accounts.exportData;
       const t = getOneLineOtpBackupFile(exportData);
       window.open(t);
     },
-    downloadBackUpExportFile() {
+    async downloadBackUpExportFile() {
+      if (!(await this.verifyBeforeExport())) {
+        return;
+      }
       const exportData = this.$store.state.accounts.exportData;
       const t = getBackupFile(exportData);
       window.open(t);
     },
-    downloadBackUpExportEncryptedFile() {
+    async downloadBackUpExportEncryptedFile() {
+      if (!(await this.verifyBeforeExport())) {
+        return;
+      }
       const exportEncData = this.$store.state.accounts.exportEncData;
       const key = this.$store.state.accounts.key;
       const t = getBackupFile(exportEncData, key);

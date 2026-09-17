@@ -201,6 +201,11 @@ button:hover,
 .import_file input {
   display: none;
 }
+.import_file .import_file_name {
+  margin: 10px 20px 20px;
+  color: gray;
+  word-break: break-all;
+}
 
 .import_encrypted {
   margin-bottom: 20px;
@@ -210,16 +215,14 @@ button:hover,
 }
 
 .import_code {
-  float: left;
-  margin-left: 30px;
-  margin-right: 40px;
+  margin: 0 30px 20px;
 }
 .import_code textarea {
-  width: 250px;
-  height: 400px;
+  width: min(600px, 85vw);
+  min-height: 45vh;
   padding: 10px;
   outline: none;
-  resize: none;
+  resize: vertical;
   box-sizing: border-box;
 }
 

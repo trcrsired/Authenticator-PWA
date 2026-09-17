@@ -41,16 +41,16 @@ const insightsData: AdvisorInsightInterface[] = [
     },
   },
   {
-    id: "autoFillNotEnabled",
-    level: InsightLevel.info,
+    id: "backupReminder",
+    level: InsightLevel.warning,
     get description() {
       return chrome.i18n.getMessage(
-        "advisor_insight_auto_fill_not_enabled"
+        "advisor_insight_backup_reminder"
       );
     },
     validation: async () => {
-      await UserSettings.updateItems();
-      return UserSettings.items.autofill !== true;
+      const entries = await EntryStorage.get();
+      return Object.keys(entries).length > 0;
     },
   },
   {
