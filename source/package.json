@@ -4,7 +4,8 @@
   "description": "Authenticator generates 2-Step Verification codes in your browser (PWA port).",
   "scripts": {
     "wasm": "clang++ --config=$HOME/cfgs/wasm32-wasip1-noeh-nomtg.cfg -Os -msimd128 -nostartfiles -Wl,--no-entry -Wl,--export=__wasm_call_ctors -Wl,--export=otp_input -Wl,--export=otp_output -Wl,--export=otp_generate -o wasm/otp.wasm crypto/otp.cpp",
-    "build": "webpack --config ./webpack.config.js",
+    "build": "node scripts/build.js",
+    "build:dev": "webpack --config ./webpack.config.js",
     "watch": "webpack --watch --config ./webpack.config.js",
     "serve": "node scripts/serve.js"
   },
