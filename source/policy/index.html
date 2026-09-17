@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>Authenticator — Privacy Policy</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        sans-serif;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 40px 20px;
+      line-height: 1.6;
+      color: #222;
+    }
+    h1 { border-bottom: 1px solid #eee; padding-bottom: 10px; }
+    h2 { margin-top: 32px; font-size: 1.15em; }
+    code { background: #f4f4f4; padding: 1px 5px; border-radius: 3px; }
+    a { color: #08c; }
+    .updated { color: #888; font-size: 0.9em; }
+  </style>
+</head>
+<body>
+  <h1>Privacy Policy</h1>
+  <p class="updated">Authenticator PWA — last updated 2025</p>
+
+  <p>
+    <strong>Short version: Authenticator stores everything on your device
+    and collects nothing.</strong> There are no accounts, no analytics, no
+    telemetry, and no servers of ours involved.
+  </p>
+
+  <h2>Data storage</h2>
+  <p>
+    All data — OTP accounts, secrets, settings, and encrypted backups —
+    is stored locally in your browser's storage (<code>localStorage</code>
+    / IndexedDB). Nothing is transmitted to us; we have no servers that
+    receive your data.
+  </p>
+
+  <h2>Data collection</h2>
+  <p>
+    We do not collect, log, or share any personal information. The app
+    contains no analytics, tracking, crash reporting, or advertising of
+    any kind.
+  </p>
+
+  <h2>Encryption and verification</h2>
+  <p>
+    If you set a passphrase, your stored secrets are encrypted on-device
+    (Argon2 + AES). If you enable biometric verification, the WebAuthn
+    prompt is handled entirely by your browser and operating system — we
+    never see your biometric data.
+  </p>
+
+  <h2>Permissions</h2>
+  <p>
+    The app may request <strong>camera</strong> access solely to scan QR
+    codes when you choose to import an account. Video frames are processed
+    locally in the page and never leave your device. <strong>Clipboard</strong>
+    access is used only to copy a code when you click one.
+  </p>
+
+  <h2>Network activity</h2>
+  <p>
+    The app works fully offline after install (a service worker caches
+    the app shell). Network requests occur only to fetch updated app
+    files from our hosting (Cloudflare Pages) and — only if you
+    explicitly sign in — to Microsoft's services for optional OneDrive
+    backup. Backups you export stay under your control.
+  </p>
+
+  <h2>Browser storage warning</h2>
+  <p>
+    Browser storage is not guaranteed to be durable: clearing site data,
+    freeing disk space, or uninstalling can erase it. Keep a backup of
+    your codes somewhere you trust (Menu → Backup).
+  </p>
+
+  <h2>Open source</h2>
+  <p>
+    The code is GPLv3-licensed and auditable at
+    <a href="https://github.com/trcrsired/Authenticator-PWA">github.com/trcrsired/Authenticator-PWA</a>.
+  </p>
+
+  <h2>Contact</h2>
+  <p>
+    Questions or issues:
+    <a href="https://github.com/trcrsired/Authenticator-PWA/issues">GitHub Issues</a>.
+  </p>
+</body>
+</html>

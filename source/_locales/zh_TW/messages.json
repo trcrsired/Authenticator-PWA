@@ -576,5 +576,13 @@
   "language": {
     "message": "語言",
     "description": "Interface language selector"
+  },
+  "theme_normal": {
+    "message": "預設",
+    "description": "Default theme"
+  },
+  "dark_mode": {
+    "message": "深色模式",
+    "description": "Light/dark palette selector (auto follows system)"
   }
 }

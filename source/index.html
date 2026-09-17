@@ -14,15 +14,17 @@
           ls.storageLocation === "sync"
             ? JSON.parse(localStorage.getItem("auth:sync:UserSettings") || "{}")
             : ls;
-        var t = settings.theme || "auto";
-        var c =
-          t === "accessibility"
-            ? "#000000"
-            : t === "dark" ||
-              (t === "auto" &&
-                matchMedia("(prefers-color-scheme: dark)").matches)
-            ? "#242424"
-            : "#ffffff";
+        var t = settings.theme || "normal";
+        // Legacy values: "dark" theme meant darkMode=dark, "auto" meant
+        // darkMode=auto. darkMode is now a separate axis.
+        var dm =
+          settings.darkMode || (t === "dark" ? "dark" : "auto");
+        var dark =
+          t !== "accessibility" &&
+          (dm === "dark" ||
+            (dm === "auto" &&
+              matchMedia("(prefers-color-scheme: dark)").matches));
+        var c = t === "accessibility" ? "#000000" : dark ? "#242424" : "#ffffff";
         document
           .querySelector('meta[name="theme-color"]')
           .setAttribute("content", c);

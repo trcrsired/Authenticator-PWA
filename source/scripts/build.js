@@ -75,6 +75,7 @@ async function main() {
     "css",
     "dist",
     "view",
+    "policy",
     "images",
     "_locales",
     "wasm",

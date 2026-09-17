@@ -3,7 +3,7 @@
 // Precaches the app shell and serves same-origin requests cache-first so the
 // app works offline. Accounts live in localStorage — no data goes through here.
 
-const VERSION = "v17";
+const VERSION = "v18";
 const CORE_CACHE = `authenticator-core-${VERSION}`;
 const RUNTIME_CACHE = `authenticator-runtime-${VERSION}`;
 
@@ -56,8 +56,10 @@ self.addEventListener("fetch", (event) => {
     return;
   }
   // Never cache the worker script itself — update checks must always
-  // reach the network or a stale worker would never be replaced.
-  if (url.pathname === "/sw.js") {
+  // reach the network or a stale worker would never be replaced. The
+  // privacy policy page is also bypassed so store reviewers and users
+  // always see the live version.
+  if (url.pathname === "/sw.js" || url.pathname.startsWith("/policy")) {
     return;
   }
   event.respondWith(

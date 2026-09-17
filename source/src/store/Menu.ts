@@ -6,6 +6,21 @@ export class Menu implements Module {
   async getModule() {
     await UserSettings.updateItems();
 
+    // Migrate the legacy single-axis theme values: "dark" became a
+    // separate darkMode axis so every layout theme can be light or dark.
+    let theme = UserSettings.items.theme || (isSafari ? "flat" : "normal");
+    let darkMode = UserSettings.items.darkMode;
+    if (!darkMode) {
+      if (theme === "dark") {
+        darkMode = "dark";
+      } else {
+        darkMode = "auto";
+      }
+    }
+    if (theme === "dark" || theme === "auto") {
+      theme = "normal";
+    }
+
     const menuState = {
       state: {
         version: chrome.runtime.getManifest()?.version || "0.0.0",
@@ -18,7 +33,8 @@ export class Menu implements Module {
         // Default on: absent key means pause while hidden.
         pauseInBackground: UserSettings.items.pauseInBackground !== false,
         enableContextMenu: UserSettings.items.enableContextMenu === true,
-        theme: UserSettings.items.theme || (isSafari ? "flat" : "auto"),
+        theme,
+        darkMode,
         browserDark:
           typeof matchMedia === "function" &&
           matchMedia("(prefers-color-scheme: dark)").matches,
@@ -35,12 +51,17 @@ export class Menu implements Module {
         ),
       },
       getters: {
-        // "auto" resolves to dark/normal from the browser's color scheme.
-        effectiveTheme(state: MenuState & { browserDark: boolean }) {
-          if (state.theme === "auto") {
-            return state.browserDark ? "dark" : "normal";
-          }
+        // Layout theme (normal/simple/compact/flat/accessibility).
+        effectiveTheme(state: MenuState) {
           return state.theme;
+        },
+        // Dark palette axis — "auto" follows the browser's color scheme.
+        effectiveDark(state: MenuState & { browserDark: boolean }) {
+          return (
+            state.theme !== "accessibility" &&
+            (state.darkMode === "dark" ||
+              (state.darkMode === "auto" && state.browserDark))
+          );
         },
       },
       mutations: {
@@ -89,6 +110,11 @@ export class Menu implements Module {
         setTheme(state: MenuState, theme: string) {
           state.theme = theme;
           UserSettings.items.theme = theme;
+          UserSettings.commitItems();
+        },
+        setDarkMode(state: MenuState, darkMode: string) {
+          state.darkMode = darkMode;
+          UserSettings.items.darkMode = darkMode;
           UserSettings.commitItems();
         },
         setAutolock(state: MenuState, autolock: number) {

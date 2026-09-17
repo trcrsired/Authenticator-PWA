@@ -1,20 +1,7 @@
 <template>
   <div
     v-cloak
-    v-bind:class="{
-      'theme-normal':
-        theme !== 'accessibility' &&
-        theme !== 'dark' &&
-        theme !== 'simple' &&
-        theme !== 'compact' &&
-        theme !== 'flat',
-      'theme-accessibility': theme === 'accessibility',
-      'theme-dark': theme === 'dark',
-      'theme-simple': theme === 'simple',
-      'theme-compact': theme === 'compact',
-      'theme-flat': theme === 'flat',
-      hideoutline,
-    }"
+    v-bind:class="[themeClasses, { hideoutline }]"
     v-on:mousedown="hideoutline = true"
     v-on:keydown="hideoutline = false"
   >
@@ -103,7 +90,6 @@ for (const module of computedPrototype) {
 // Page background per theme (the "white-1" sass value) — drives the
 // OS title bar / status bar color via <meta name="theme-color">.
 const THEME_COLORS: { [theme: string]: string } = {
-  dark: "#242424",
   accessibility: "#000000",
 };
 
@@ -114,14 +100,35 @@ export default Vue.extend({
       unlocking: false,
     };
   },
-  computed,
+  computed: {
+    ...computed,
+    // Layout theme class plus the dark palette modifier — every theme
+    // has a light and a dark variant.
+    themeClasses(): string[] {
+      const theme = this.$store.getters["menu/effectiveTheme"];
+      const classes = [`theme-${theme}`];
+      if (this.$store.getters["menu/effectiveDark"]) {
+        classes.push("theme-dark");
+      }
+      return classes;
+    },
+    titleBarColor(): string {
+      const theme = this.$store.getters["menu/effectiveTheme"];
+      if (THEME_COLORS[theme]) {
+        return THEME_COLORS[theme];
+      }
+      return this.$store.getters["menu/effectiveDark"]
+        ? "#242424"
+        : "#ffffff";
+    },
+  },
   watch: {
-    theme: {
+    titleBarColor: {
       immediate: true,
-      handler(theme: string) {
+      handler(color: string) {
         const meta = document.querySelector('meta[name="theme-color"]');
         if (meta) {
-          meta.setAttribute("content", THEME_COLORS[theme] ?? "#ffffff");
+          meta.setAttribute("content", color);
         }
       },
     },

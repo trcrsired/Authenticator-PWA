@@ -39,6 +39,7 @@ interface MenuState {
   pauseInBackground: boolean;
   enableContextMenu: boolean;
   theme: string;
+  darkMode: string;
   backupDisabled: boolean;
   storageArea: "sync" | "local";
 }

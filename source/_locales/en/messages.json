@@ -569,5 +569,13 @@
   "language": {
     "message": "Language",
     "description": "Interface language selector"
+  },
+  "theme_normal": {
+    "message": "Normal",
+    "description": "Default theme"
+  },
+  "dark_mode": {
+    "message": "Dark mode",
+    "description": "Light/dark palette selector (auto follows system)"
   }
 }

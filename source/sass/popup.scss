@@ -1188,9 +1188,10 @@ svg {
 
 }
 
-// Simple & Compact overrides
-.theme-simple,
-.theme-compact {
+// Simple & Compact overrides — light palette only; in dark mode the
+// shared .theme-dark palette takes over.
+.theme-simple:not(.theme-dark),
+.theme-compact:not(.theme-dark) {
   .header {
     border-bottom: white 1px solid !important;
 
@@ -1277,12 +1278,14 @@ svg {
     }
   }
 
-  a.entry {
-    border-bottom: #eee 1px solid !important;
-  }
-
   .issuer.account {
     display: none;
+  }
+}
+
+.theme-compact:not(.theme-dark) {
+  a.entry {
+    border-bottom: #eee 1px solid !important;
   }
 }
 
@@ -1401,8 +1404,38 @@ svg {
 
 }
 
-// Flat overrides
+// Flat overrides — layout always applies; the light palette is gated
+// so .theme-flat.theme-dark falls back to the shared dark colors.
 .theme-flat {
+  #codes {
+    .entry {
+      border-radius: 8px;
+    }
+  }
+
+  #menu {
+    #menuBody {
+      .menuList {
+        margin: 10px;
+        border-radius: 8px;
+      }
+    }
+
+    #version {
+      bottom: 0px;
+      position: relative;
+      margin: 10px auto;
+      width: 100%;
+      font-size: 0.9em;
+    }
+
+    #info {
+      border-radius: 8px;
+    }
+  }
+}
+
+.theme-flat:not(.theme-dark) {
   .header {
     color: black;
     background: white;
@@ -1414,7 +1447,6 @@ svg {
 
     .entry {
       border: #f5f4f7 1px solid;
-      border-radius: 8px;
     }
   }
 
@@ -1423,8 +1455,6 @@ svg {
       background: #fcfbff;
 
       .menuList {
-        margin: 10px;
-        border-radius: 8px;
         border: #f5f4f7 1px solid;
         background: white;
 
@@ -1443,16 +1473,10 @@ svg {
     }
 
     #version {
-      bottom: 0px;
-      position: relative;
-      margin: 10px auto;
-      width: 100%;
       color: #727272;
-      font-size: 0.9em;
     }
 
     #info {
-      border-radius: 8px;
       border: #f5f4f7 1px solid;
 
       .control-group {

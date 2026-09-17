@@ -5,13 +5,21 @@
       v-model="theme"
       style="margin-left: 10px"
     >
-      <option value="auto">{{ i18n.theme_auto }}</option>
-      <option value="normal">{{ i18n.theme_light }}</option>
-      <option value="dark">{{ i18n.theme_dark }}</option>
+      <option value="normal">{{ i18n.theme_normal }}</option>
       <option value="simple">{{ i18n.theme_simple }}</option>
       <option value="compact">{{ i18n.theme_compact }}</option>
-      <option value="accessibility">{{ i18n.theme_high_contrast }}</option>
       <option value="flat">{{ i18n.theme_flat }}</option>
+      <option value="accessibility">{{ i18n.theme_high_contrast }}</option>
+    </a-select-input>
+    <a-select-input
+      :label="i18n.dark_mode"
+      v-model="darkMode"
+      :disabled="theme === 'accessibility'"
+      style="margin-left: 10px"
+    >
+      <option value="auto">{{ i18n.theme_auto }}</option>
+      <option value="light">{{ i18n.theme_light }}</option>
+      <option value="dark">{{ i18n.theme_dark }}</option>
     </a-select-input>
     <a-select-input
       :label="i18n.scale"
@@ -162,6 +170,14 @@ export default Vue.extend({
       },
       set(enabled: boolean) {
         this.$store.commit("menu/setPauseInBackground", enabled);
+      },
+    },
+    darkMode: {
+      get(): string {
+        return this.$store.state.menu.darkMode;
+      },
+      set(mode: string) {
+        this.$store.commit("menu/setDarkMode", mode);
       },
     },
     theme: {
