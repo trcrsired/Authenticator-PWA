@@ -1,0 +1,28 @@
+{
+  "name": "Authenticator",
+  "short_name": "Authenticator",
+  "description": "Authenticator generates two-factor authentication codes in your browser.",
+  "scope": "/",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "icons": [
+    {
+      "src": "/images/icon.svg",
+      "type": "image/svg+xml",
+      "sizes": "any",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/icon48.png",
+      "type": "image/png",
+      "sizes": "48x48"
+    },
+    {
+      "src": "/images/icon128.png",
+      "type": "image/png",
+      "sizes": "128x128"
+    }
+  ]
+}
