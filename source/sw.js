@@ -3,7 +3,7 @@
 // Precaches the app shell and serves same-origin requests cache-first so the
 // app works offline. Accounts live in localStorage — no data goes through here.
 
-const VERSION = "v3";
+const VERSION = "v4";
 const CORE_CACHE = `authenticator-core-${VERSION}`;
 const RUNTIME_CACHE = `authenticator-runtime-${VERSION}`;
 

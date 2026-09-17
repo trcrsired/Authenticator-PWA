@@ -62,6 +62,8 @@ export class OTPEntry implements OTPEntryInterface {
   encryption?: EncryptionInterface;
   encData?: string;
   encSecret?: string;
+  // Last TOTP time step the code was generated for; unset forces a refresh.
+  lastCodeStep?: number;
   keyId?: string;
   code = "&bull;&bull;&bull;&bull;&bull;&bull;";
 

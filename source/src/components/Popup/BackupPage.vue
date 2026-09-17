@@ -67,8 +67,8 @@
         </div>
       </div>
     </div>
-    <!-- OneDrive cloud backup -->
-    <div>
+    <!-- OneDrive cloud backup (hidden until an Azure client ID is set) -->
+    <div v-if="oneDriveConfigured">
       <div class="text" style="margin-top: 15px;">OneDrive</div>
       <div
         class="text warning"

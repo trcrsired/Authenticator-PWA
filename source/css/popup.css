@@ -740,30 +740,54 @@ svg {
 }
 .entry .sector circle {
   fill: none;
-  transform: rotate(-90deg);
   transform-origin: 50% 50%;
 }
-.theme-normal .entry .sector circle {
-  stroke: grey;
+.theme-normal .entry .sector circle.track {
+  stroke: #ccc;
 }
-.theme-accessibility .entry .sector circle {
+.theme-accessibility .entry .sector circle.track {
   stroke: white;
 }
-.theme-dark .entry .sector circle {
+.theme-dark .entry .sector circle.track {
+  stroke: rgba(255, 255, 255, 0.15);
+}
+.theme-simple .entry .sector circle.track {
+  stroke: #ccc;
+}
+.theme-compact .entry .sector circle.track {
+  stroke: #ccc;
+}
+.theme-flat .entry .sector circle.track {
+  stroke: #ccc;
+}
+.entry .sector circle.track {
+  stroke-width: 2px;
+  opacity: 0.35;
+}
+.entry .sector circle.sweep {
+  transform: rotate(-90deg);
+}
+.theme-normal .entry .sector circle.sweep {
   stroke: grey;
 }
-.theme-simple .entry .sector circle {
+.theme-accessibility .entry .sector circle.sweep {
+  stroke: white;
+}
+.theme-dark .entry .sector circle.sweep {
   stroke: grey;
 }
-.theme-compact .entry .sector circle {
+.theme-simple .entry .sector circle.sweep {
   stroke: grey;
 }
-.theme-flat .entry .sector circle {
+.theme-compact .entry .sector circle.sweep {
   stroke: grey;
 }
-.entry .sector circle {
+.theme-flat .entry .sector circle.sweep {
+  stroke: grey;
+}
+.entry .sector circle.sweep {
   stroke-width: 8px;
-  stroke-dasharray: 25.12;
+  stroke-dasharray: 6.28 18.84;
   animation-name: timer;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
@@ -1810,8 +1834,11 @@ svg {
 }
 
 @keyframes timer {
+  from {
+    transform: rotate(-90deg);
+  }
   to {
-    stroke-dashoffset: -25.12;
+    transform: rotate(270deg);
   }
 }
 @keyframes twinkling {

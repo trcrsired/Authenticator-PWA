@@ -349,16 +349,30 @@ svg {
 
     circle {
       fill: none;
-      transform: rotate(-90deg);
       transform-origin: 50% 50%;
-      @include themify($themes) {
-        stroke: themed("grey-1");
+
+      &.track {
+        @include themify($themes) {
+          stroke: themed("grey-2");
+        }
+        stroke-width: 2px;
+        opacity: 0.35;
       }
-      stroke-width: 8px;
-      stroke-dasharray: 25.12;
-      animation-name: timer;
-      animation-iteration-count: infinite;
-      animation-timing-function: linear;
+
+      // Quarter-arc that sweeps around once per period. Rotating a
+      // transform is GPU-composited — unlike the old stroke-dashoffset
+      // animation, this paints zero frames per second.
+      &.sweep {
+        transform: rotate(-90deg);
+        @include themify($themes) {
+          stroke: themed("grey-1");
+        }
+        stroke-width: 8px;
+        stroke-dasharray: 6.28 18.84;
+        animation-name: timer;
+        animation-iteration-count: infinite;
+        animation-timing-function: linear;
+      }
     }
   }
 
@@ -936,8 +950,11 @@ svg {
 
 // Animations
 @keyframes timer {
+  from {
+    transform: rotate(-90deg);
+  }
   to {
-    stroke-dashoffset: -25.12;
+    transform: rotate(270deg);
   }
 }
 

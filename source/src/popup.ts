@@ -105,11 +105,24 @@ async function init() {
     render: (h) => h(Popup),
     store,
     mounted() {
-      // Update time based entries' codes
-      this.$store.commit("accounts/updateCodes");
-      setInterval(() => {
+      // Update time based entries' codes. Pause while the tab is
+      // hidden so a backgrounded PWA burns no CPU, and refresh
+      // immediately on return.
+      const updateCodes = () =>
         this.$store.commit("accounts/updateCodes");
-      }, 1000);
+      updateCodes();
+      let timer = window.setInterval(updateCodes, 1000);
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          clearInterval(timer);
+          timer = -1;
+        } else {
+          updateCodes();
+          if (timer === -1) {
+            timer = window.setInterval(updateCodes, 1000);
+          }
+        }
+      });
     },
   }).$mount("#authenticator");
 

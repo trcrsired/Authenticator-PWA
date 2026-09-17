@@ -20,7 +20,9 @@
       v-show="sectorStart"
     >
       <svg viewBox="0 0 16 16">
+        <circle class="track" cx="8" cy="8" r="4" />
         <circle
+          class="sweep"
           cx="8"
           cy="8"
           r="4"

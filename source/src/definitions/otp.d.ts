@@ -13,6 +13,8 @@ interface OTPEntryInterface {
   pinned: boolean;
   encData?: string;
   encryption?: EncryptionInterface;
+  // Last TOTP time step the code was generated for; -1 forces a refresh.
+  lastCodeStep?: number;
   create(): Promise<void>;
   update(): Promise<void>;
   next(): Promise<void>;

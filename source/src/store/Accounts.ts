@@ -126,12 +126,23 @@ export class Accounts implements Module {
           //   }
           // }
           const entries = state.entries as OTPEntryInterface[];
+          // Codes only change at each period boundary — skip the HMAC
+          // unless the time step actually moved.
+          const epoch =
+            Math.floor(Date.now() / 1000) +
+            Number(UserSettings.items.offset || 0);
           for (let i = 0; i < entries.length; i++) {
+            const entry = entries[i];
             if (
-              entries[i].type !== OTPType.hotp &&
-              entries[i].type !== OTPType.hhex
+              entry.type === OTPType.hotp ||
+              entry.type === OTPType.hhex
             ) {
-              entries[i].generate();
+              continue;
+            }
+            const step = Math.floor(epoch / entry.period);
+            if (entry.lastCodeStep !== step) {
+              entry.lastCodeStep = step;
+              entry.generate();
             }
           }
         },
