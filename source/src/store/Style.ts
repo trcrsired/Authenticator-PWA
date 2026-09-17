@@ -16,6 +16,7 @@ export class Style implements Module {
           notificationFadeout: false,
           hotpDisabled: false,
           appLocked: false,
+          unlockFailed: false,
         },
       },
       mutations: {
@@ -79,6 +80,12 @@ export class Style implements Module {
         },
         setAppLocked(state: StyleState, locked: boolean) {
           state.style.appLocked = locked;
+          if (!locked) {
+            state.style.unlockFailed = false;
+          }
+        },
+        setUnlockFailed(state: StyleState, failed: boolean) {
+          state.style.unlockFailed = failed;
         },
       },
       getters: {

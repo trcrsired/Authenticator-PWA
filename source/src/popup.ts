@@ -101,6 +101,17 @@ async function init() {
     }
   }
 
+  // Gate app open behind platform verification (Face ID / fingerprint /
+  // screen lock) when enabled. Lock BEFORE the first render so startup
+  // shows only the blank cover — the app UI never flashes in.
+  const uvCredentialId = UserSettings.items.uvCredentialId;
+  const needsUnlock =
+    (store.state as { menu: MenuState }).menu.useUnlockVerification &&
+    Boolean(uvCredentialId);
+  if (needsUnlock) {
+    store.commit("style/setAppLocked", true);
+  }
+
   // Render
   const instance = new Vue({
     render: (h) => h(Popup),
@@ -130,16 +141,16 @@ async function init() {
     },
   }).$mount("#authenticator");
 
-  // Gate app open behind platform verification (Face ID / fingerprint /
-  // screen lock) when enabled. Auto-prompt immediately — on platforms
-  // needing a gesture (Android Edge) the request may hang, but the
-  // tap-to-unlock overlay aborts it before starting a gesture-backed one.
-  const uvCredentialId = UserSettings.items.uvCredentialId;
-  if (instance.$store.state.menu.useUnlockVerification && uvCredentialId) {
-    instance.$store.commit("style/setAppLocked", true);
+  // Auto-prompt immediately — on platforms needing a gesture (Android
+  // Edge) the request may hang, but tapping the lock cover aborts it
+  // and starts a gesture-backed one. Only a failure surfaces the
+  // "tap to unlock" hint.
+  if (needsUnlock && uvCredentialId) {
     verifyUserAtStartup(uvCredentialId).then((ok) => {
       if (ok) {
         instance.$store.commit("style/setAppLocked", false);
+      } else {
+        instance.$store.commit("style/setUnlockFailed", true);
       }
     });
   }

@@ -64,12 +64,11 @@
     <!-- CLIPBOARD -->
     <input type="text" id="codeClipboard" tabindex="-1" />
 
-    <!-- APP LOCK (WebAuthn gate) — covers the codes while locked. The
-         system prompt fires automatically at startup; the "tap to
-         unlock" hint only appears if that prompt hangs or is dismissed
-         without unlocking. -->
+    <!-- APP LOCK (WebAuthn gate) — blank cover while locked; the system
+         prompt fires automatically. The "tap to unlock" hint appears
+         only when verification actually failed, offering a retry. -->
     <div id="appLock" v-if="style.appLocked" v-on:click="unlockApp()">
-      <p v-if="lockFallback">{{ i18n.tap_to_unlock }}</p>
+      <p v-if="style.unlockFailed">{{ i18n.tap_to_unlock }}</p>
     </div>
   </div>
 </template>
@@ -113,29 +112,10 @@ export default Vue.extend({
     return {
       hideoutline: true,
       unlocking: false,
-      lockFallback: false,
-      lockFallbackTimer: -1,
     };
   },
   computed,
   watch: {
-    "style.appLocked": {
-      immediate: true,
-      handler(locked: boolean) {
-        clearTimeout(this.lockFallbackTimer);
-        this.lockFallback = false;
-        if (locked) {
-          // Startup auto-prompt normally resolves fast; only surface the
-          // tap-to-unlock overlay if we're still locked after a delay
-          // (e.g. Android's gestureless request hangs).
-          this.lockFallbackTimer = window.setTimeout(() => {
-            if (this.$store.state.style.style.appLocked) {
-              this.lockFallback = true;
-            }
-          }, 2500);
-        }
-      },
-    },
     theme: {
       immediate: true,
       handler(theme: string) {
@@ -169,6 +149,7 @@ export default Vue.extend({
         if (ok) {
           this.$store.commit("style/setAppLocked", false);
         } else {
+          this.$store.commit("style/setUnlockFailed", true);
           this.$store.commit(
             "notification/alert",
             this.i18n.verification_failed

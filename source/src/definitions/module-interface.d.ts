@@ -58,6 +58,7 @@ interface StyleState {
     notificationFadeout: boolean;
     hotpDisabled: boolean;
     appLocked: boolean;
+    unlockFailed: boolean;
   };
 }
 
