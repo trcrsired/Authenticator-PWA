@@ -1,6 +1,6 @@
 <template>
   <div class="header">
-    <span v-on:dblclick="popOut()">{{ i18n.extName }}</span>
+    <span>{{ i18n.extName }}</span>
     <div v-show="!isPopup()">
       <div
         class="icon"
@@ -88,14 +88,6 @@ export default Vue.extend({
     isPopup() {
       const params = new URLSearchParams(document.location.search.substring(1));
       return params.get("popup");
-    },
-    popOut() {
-      chrome.windows.create({
-        url: chrome.runtime.getURL("index.html?popup=true"),
-        type: "popup" as chrome.windows.createTypeEnum,
-        height: window.innerHeight,
-        width: window.innerWidth,
-      });
     },
     showMenu() {
       this.$store.commit("style/showMenu");

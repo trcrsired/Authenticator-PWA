@@ -67,6 +67,36 @@
         </div>
       </div>
     </div>
+    <!-- OneDrive cloud backup -->
+    <div v-if="oneDriveConfigured">
+      <div class="text" style="margin-top: 15px;">OneDrive</div>
+      <div
+        class="text warning"
+        v-show="oneDriveSignedIn && !oneDriveEncrypted"
+      >
+        {{ i18n.dropbox_risk }}
+      </div>
+      <div class="text" v-if="oneDriveSignedIn && oneDriveEmail">
+        {{ i18n.account }} - {{ oneDriveEmail }}
+      </div>
+      <a-select-input
+        v-if="oneDriveSignedIn && !!defaultEncryption"
+        :label="i18n.encrypted"
+        v-model="oneDriveEncrypted"
+      >
+        <option value="true">{{ i18n.yes }}</option>
+        <option value="false">{{ i18n.no }}</option>
+      </a-select-input>
+      <a-button v-if="!oneDriveSignedIn" @click="oneDriveSignIn()">
+        {{ i18n.sign_in }}
+      </a-button>
+      <a-button v-if="oneDriveSignedIn" @click="oneDriveUpload()">
+        {{ i18n.manual_dropbox }}
+      </a-button>
+      <a-button v-if="oneDriveSignedIn" @click="oneDriveLogout()">
+        {{ i18n.log_out }}
+      </a-button>
+    </div>
     <a-button @click="showImport()">{{ i18n.import_backup }}</a-button>
   </div>
 </template>
@@ -77,6 +107,14 @@ import { UserSettings } from "../../models/settings";
 import { verifyUser } from "../../models/user-verification";
 import { getOTPAuthMigrationUrisFromEntries } from "../../models/migration";
 import * as QRGen from "qrcode-generator";
+import {
+  isConfigured as oneDriveConfigured,
+  isSignedIn as oneDriveIsSignedIn,
+  signIn as oneDriveBeginSignIn,
+  signOut as oneDriveDoSignOut,
+  uploadBackup as oneDriveUploadBackup,
+  getUserEmail as oneDriveGetUserEmail,
+} from "../../models/onedrive";
 
 export default Vue.extend({
   data: function () {
@@ -90,7 +128,15 @@ export default Vue.extend({
       exportEncryptedFile: getBackupFile(exportEncData, key),
       exportOneLineOtpAuthFile: getOneLineOtpBackupFile(exportData),
       exportQrs: [] as string[],
+      oneDriveConfigured: oneDriveConfigured(),
+      oneDriveSignedIn: oneDriveIsSignedIn(),
+      oneDriveEmail: "",
     };
+  },
+  async mounted() {
+    if (this.oneDriveSignedIn) {
+      this.oneDriveEmail = await oneDriveGetUserEmail();
+    }
   },
   computed: {
     defaultEncryption: function () {
@@ -108,10 +154,47 @@ export default Vue.extend({
     isDataLinkSupported: function () {
       return !isSafari;
     },
+    oneDriveEncrypted: {
+      get(): boolean {
+        return UserSettings.items.oneDriveEncrypted !== false;
+      },
+      set(newValue: string) {
+        UserSettings.items.oneDriveEncrypted = newValue === "true";
+        UserSettings.commitItems();
+      },
+    },
   },
   methods: {
     showImport() {
       this.$store.commit("currentView/changeView", "ImportPage");
+    },
+    async oneDriveSignIn() {
+      await oneDriveBeginSignIn();
+    },
+    async oneDriveUpload() {
+      if (!(await this.verifyBeforeExport())) {
+        return;
+      }
+      const ok = await oneDriveUploadBackup(
+        this.$store.state.accounts.encryption
+      );
+      if (ok) {
+        this.$store.commit("notification/alert", this.i18n.updateSuccess);
+      } else if (UserSettings.items.oneDriveRevoked === true) {
+        this.$store.commit(
+          "notification/alert",
+          this.i18n.token_revoked.replace("$SERVICE$", "OneDrive")
+        );
+        UserSettings.removeItem("oneDriveRevoked");
+        this.oneDriveSignedIn = oneDriveIsSignedIn();
+      } else {
+        this.$store.commit("notification/alert", this.i18n.updateFailure);
+      }
+    },
+    async oneDriveLogout() {
+      oneDriveDoSignOut();
+      this.oneDriveSignedIn = false;
+      this.oneDriveEmail = "";
     },
     // Gate exports behind platform user verification (biometric/screen
     // lock) when enabled. When verification is off, the anchor's native

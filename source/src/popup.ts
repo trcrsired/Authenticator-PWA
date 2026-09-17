@@ -24,6 +24,7 @@ import { Qr } from "./store/Qr";
 import { Advisor } from "./store/Advisor";
 import { UserSettings } from "./models/settings";
 import { initOtpWasm } from "./models/wasm-otp";
+import { handleRedirect as handleOneDriveRedirect } from "./models/onedrive";
 
 async function init() {
   // Crypto falls back to the JS implementation if the wasm fetch fails
@@ -34,6 +35,14 @@ async function init() {
     console.warn("OTP wasm module unavailable, using JS crypto fallback", e);
   }
   await UserSettings.updateItems();
+
+  // Complete the OneDrive OAuth redirect if this page load is returning
+  // from Microsoft sign-in (?code=...&state=... in the URL).
+  try {
+    await handleOneDriveRedirect();
+  } catch (e) {
+    console.warn("OneDrive redirect handling failed", e);
+  }
 
   // Add globals
   Vue.prototype.i18n = await loadI18nMessages();

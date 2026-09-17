@@ -153,9 +153,10 @@ export default Vue.extend({
       }
       return;
     },
-    closeImport() {
+    async closeImport() {
       if (this.$store) {
-        // Embedded in the main app: close the info panel
+        // Embedded in the main app: refresh the list and close the panel
+        await this.$store.dispatch("accounts/updateEntries");
         this.$store.commit("style/hideInfo");
       } else {
         // Standalone import page: close the tab if script-opened,
