@@ -26,14 +26,23 @@ const types = {
 http
   .createServer((req, res) => {
     let urlPath = decodeURIComponent(req.url.split("?")[0]);
-    if (urlPath === "/" || urlPath === "/index.html") {
+    if (urlPath === "/") {
       urlPath = "/index.html";
     }
-    const file = path.normalize(path.join(root, urlPath));
+    let file = path.normalize(path.join(root, urlPath));
     if (!file.startsWith(root)) {
       res.writeHead(403);
       res.end("Forbidden");
       return;
+    }
+    // Cloudflare Pages-style normalization: extensionless URLs resolve to
+    // /x.html or /x/index.html
+    if (!path.extname(file)) {
+      if (fs.existsSync(file + ".html")) {
+        file += ".html";
+      } else if (fs.existsSync(path.join(file, "index.html"))) {
+        file = path.join(file, "index.html");
+      }
     }
     fs.readFile(file, (err, data) => {
       if (err) {

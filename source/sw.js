@@ -9,15 +9,14 @@ const RUNTIME_CACHE = `authenticator-runtime-${VERSION}`;
 
 const CORE_ASSETS = [
   "/",
-  "/index.html",
   "/manifest.webmanifest",
   "/css/popup.css",
   "/css/import.css",
   "/dist/popup.js",
   "/dist/import.js",
   "/dist/options.js",
-  "/view/import.html",
-  "/view/options.html",
+  "/view/import",
+  "/view/options",
   "/images/icon.svg",
   "/images/icon48.png",
   "/images/icon128.png",
