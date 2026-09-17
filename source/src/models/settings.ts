@@ -26,6 +26,7 @@ interface UserSettingsData {
   advisorIgnoreList?: string[];
   autolock?: number;
   enableContextMenu?: boolean;
+  language?: string;
   pauseInBackground?: boolean;
   requireUserVerification?: boolean;
   requireUnlockVerification?: boolean;

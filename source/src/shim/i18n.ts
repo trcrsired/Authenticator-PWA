@@ -15,11 +15,19 @@ type Catalog = Record<string, I18nEntry>;
 // Base catalog is always English; more specific locales override it.
 let catalog: Catalog = enMessages as unknown as Catalog;
 
+// Locales shipped in _locales/ — keep in sync with that directory.
+export const SUPPORTED_LOCALES = [
+  "ar", "bg", "bn", "ca", "cs", "da", "de", "el", "en", "es", "et", "fa",
+  "fi", "fr", "fy", "he", "hi", "hr", "hu", "hy", "id", "it", "ja", "ka",
+  "kaa", "ko", "lt", "lv", "nl", "no", "pl", "pt", "pt_BR", "ro", "ru",
+  "sq", "sr", "sv", "th", "tr", "uk", "vi", "zh_CN", "zh_TW",
+];
+
 function normalizeLocale(lang: string) {
   return lang.replace("-", "_");
 }
 
-function localeCandidates(): string[] {
+function localeCandidates(preferred?: string): string[] {
   const candidates: string[] = [];
   const seen = new Set<string>();
   const push = (locale: string | undefined) => {
@@ -38,6 +46,10 @@ function localeCandidates(): string[] {
       candidates.push(languageOnly);
     }
   };
+  // An explicit in-app language choice wins over the browser's list.
+  if (preferred && preferred !== "auto") {
+    push(preferred);
+  }
   for (const lang of navigator.languages ?? []) {
     push(lang);
   }
@@ -60,8 +72,8 @@ async function fetchMessages(locale: string): Promise<Catalog | null> {
   }
 }
 
-export async function initI18n(): Promise<void> {
-  const candidates = localeCandidates();
+export async function initI18n(preferred?: string): Promise<void> {
+  const candidates = localeCandidates(preferred);
   // Least-specific first so more specific locales override.
   for (let i = candidates.length - 1; i >= 0; i--) {
     const locale = candidates[i];

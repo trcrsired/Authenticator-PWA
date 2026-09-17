@@ -565,5 +565,9 @@
   "pause_in_background": {
     "message": "Pause the countdown while the app is in the background",
     "description": "Pause OTP countdown updates when the app is not visible"
+  },
+  "language": {
+    "message": "Language",
+    "description": "Interface language selector"
   }
 }

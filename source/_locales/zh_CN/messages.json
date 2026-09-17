@@ -572,5 +572,9 @@
   "pause_in_background": {
     "message": "应用在后台时暂停倒计时",
     "description": "Pause OTP countdown updates when the app is not visible"
+  },
+  "language": {
+    "message": "语言",
+    "description": "Interface language selector"
   }
 }

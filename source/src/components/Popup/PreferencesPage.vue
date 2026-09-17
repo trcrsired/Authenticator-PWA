@@ -36,6 +36,16 @@
       :disabled="storageArea"
       @change="migrateStorage()"
     />
+    <a-select-input
+      :label="i18n.language"
+      v-model="language"
+      style="margin-left: 10px"
+    >
+      <option value="auto">{{ i18n.theme_auto }}</option>
+      <option v-for="loc in locales" :key="loc" :value="loc">
+        {{ localeName(loc) }}
+      </option>
+    </a-select-input>
     <a-toggle-input :label="i18n.smart_filter" v-model="smartFilter" />
     <a-toggle-input
       :label="i18n.require_user_verification"
@@ -72,9 +82,30 @@ import Vue from "vue";
 import { isFirefox } from "../../browser";
 import { UserSettings } from "../../models/settings";
 import { enrollUserVerification } from "../../models/user-verification";
+import { SUPPORTED_LOCALES } from "../../shim/i18n";
 
 export default Vue.extend({
   computed: {
+    locales(): string[] {
+      return SUPPORTED_LOCALES;
+    },
+    language: {
+      get(): string {
+        return UserSettings.items.language || "auto";
+      },
+      async set(locale: string) {
+        if (locale === "auto") {
+          delete UserSettings.items.language;
+        } else {
+          UserSettings.items.language = locale;
+        }
+        // i18n messages are baked into Vue.prototype.i18n at startup;
+        // reloading is the only way to apply a new catalog. Await the
+        // write first — reloading mid-commit can lose the setting.
+        await UserSettings.commitItems();
+        location.reload();
+      },
+    },
     zoom: {
       get(): number {
         return this.$store.state.menu.zoom;
@@ -185,6 +216,16 @@ export default Vue.extend({
     });
   },
   methods: {
+    // Native display name for a locale ("zh_CN" → "中文（中国）").
+    localeName(locale: string): string {
+      try {
+        const tag = locale.replace("_", "-");
+        const names = new Intl.DisplayNames([tag], { type: "language" });
+        return names.of(tag) ?? locale;
+      } catch {
+        return locale;
+      }
+    },
     // Reuse the already-enrolled platform credential when present;
     // otherwise run WebAuthn enrollment (biometric/screen lock prompt).
     async ensureCredential(): Promise<boolean> {
