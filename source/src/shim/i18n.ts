@@ -46,9 +46,13 @@ function localeCandidates(preferred?: string): string[] {
       candidates.push(languageOnly);
     }
   };
-  // An explicit in-app language choice wins over the browser's list.
+  // An explicit in-app language choice wins over the browser's list —
+  // and suppresses it entirely, so picking "English" on a Chinese
+  // browser doesn't merge zh over the en base catalog.
   if (preferred && preferred !== "auto") {
     push(preferred);
+    push("en");
+    return candidates;
   }
   for (const lang of navigator.languages ?? []) {
     push(lang);
