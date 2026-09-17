@@ -373,6 +373,10 @@
     "message": "Browser Sync",
     "description": "Storage location"
   },
+  "onedrive_not_configured": {
+    "message": "OneDrive is not configured: an Azure app client ID is required.",
+    "description": "Shown when OneDrive backup is used without a client ID"
+  },
   "sign_in": {
     "message": "Sign in",
     "description": "Sign in to 3rd party storage services"

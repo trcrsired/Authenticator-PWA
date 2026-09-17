@@ -68,7 +68,7 @@
       </div>
     </div>
     <!-- OneDrive cloud backup -->
-    <div v-if="oneDriveConfigured">
+    <div>
       <div class="text" style="margin-top: 15px;">OneDrive</div>
       <div
         class="text warning"
@@ -169,6 +169,13 @@ export default Vue.extend({
       this.$store.commit("currentView/changeView", "ImportPage");
     },
     async oneDriveSignIn() {
+      if (!this.oneDriveConfigured) {
+        this.$store.commit(
+          "notification/alert",
+          this.i18n.onedrive_not_configured
+        );
+        return;
+      }
       await oneDriveBeginSignIn();
     },
     async oneDriveUpload() {
