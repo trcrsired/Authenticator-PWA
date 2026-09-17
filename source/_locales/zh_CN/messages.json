@@ -588,5 +588,9 @@
   "ask_unlock_verification": {
     "message": "是否在打开 Authenticator 时启用生物识别验证（人脸、指纹或屏幕锁）？",
     "description": "Prompt to enable biometric unlock after first import"
+  },
+  "confirm_disable_verification": {
+    "message": "要停用生物识别验证吗？停用后，您的验证码将不再受到人脸、指纹或屏幕锁定的保护。",
+    "description": "Confirm before disabling biometric verification"
   }
 }
