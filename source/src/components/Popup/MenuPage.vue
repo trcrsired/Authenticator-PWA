@@ -48,7 +48,7 @@
           <span><IconCode /></span>{{ i18n.source }}
         </p>
         <a
-          href="https://github.com/trcrsired/Authenticator-PWA/blob/main/LICENSE"
+          href="https://github.com/trcrsired/Authenticator-PWA#readme"
           target="_blank"
           style="text-decoration: none"
         >
