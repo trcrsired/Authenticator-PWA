@@ -5,6 +5,29 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#ffffff" />
+    <script>
+      // Set the OS title/status bar color before first paint — waiting
+      // for the app bundle to boot would flash the wrong color.
+      try {
+        var ls = JSON.parse(localStorage.getItem("auth:local:UserSettings") || "{}");
+        var settings =
+          ls.storageLocation === "sync"
+            ? JSON.parse(localStorage.getItem("auth:sync:UserSettings") || "{}")
+            : ls;
+        var t = settings.theme || "auto";
+        var c =
+          t === "accessibility"
+            ? "#000000"
+            : t === "dark" ||
+              (t === "auto" &&
+                matchMedia("(prefers-color-scheme: dark)").matches)
+            ? "#242424"
+            : "#ffffff";
+        document
+          .querySelector('meta[name="theme-color"]')
+          .setAttribute("content", c);
+      } catch (e) {}
+    </script>
     <link rel="manifest" href="/manifest.webmanifest">
     <link rel="icon" type="image/webp" href="/images/icon.webp">
     <link rel="apple-touch-icon" href="/images/icon.webp">
