@@ -37,6 +37,8 @@ function compileSass() {
   for (const name of ["popup", "import"]) {
     const result = sass.compile(path.join(root, "sass", `${name}.scss`), {
       loadPaths: [path.join(root, "sass")],
+      // _ui.scss predates the module system; quiet Dart Sass 3.0 notices
+      silenceDeprecations: ["import", "global-builtin"],
     });
     fs.writeFileSync(path.join(root, "css", `${name}.css`), result.css);
   }
