@@ -67,6 +67,11 @@ export async function enrollUserVerification(): Promise<string | null> {
       if (adopted) {
         return adopted;
       }
+      if (adoptExistingCredentialCancelled) {
+        // The user dismissed the adopt prompt — do not fire another
+        // system dialog they already declined.
+        return null;
+      }
       // Nothing discoverable resolved (e.g. only an old non-discoverable
       // credential exists) — retry with the pre-passkey enrollment
       // options that demonstrably worked on this platform.
@@ -83,6 +88,10 @@ export async function enrollUserVerification(): Promise<string | null> {
       return null;
     }
     console.error("WebAuthn enrollment failed", e);
+    if ((e as DOMException).name === "NotAllowedError") {
+      // User dismissed the prompt — not an error worth alerting.
+      return null;
+    }
     // Surface the DOMException name so failures are diagnosable
     // (e.g. NotSupportedError on browsers without platform passkeys).
     alert(
@@ -96,7 +105,9 @@ export async function enrollUserVerification(): Promise<string | null> {
 
 // Resolves a passkey already registered for this origin (empty
 // allowCredentials = any discoverable credential) and returns its id.
+let adoptExistingCredentialCancelled = false;
 async function adoptExistingCredential(): Promise<string | null> {
+  adoptExistingCredentialCancelled = false;
   try {
     const assertion = (await navigator.credentials.get({
       publicKey: {
@@ -112,6 +123,12 @@ async function adoptExistingCredential(): Promise<string | null> {
     return btoa(String.fromCharCode(...new Uint8Array(assertion.rawId)));
   } catch (e) {
     console.error("WebAuthn existing-credential lookup failed", e);
+    if ((e as DOMException).name === "NotAllowedError") {
+      // User cancelled (or no discoverable credential exists) — either
+      // way, treat it as a refusal rather than retrying with a new prompt.
+      adoptExistingCredentialCancelled = true;
+      return null;
+    }
     alert(
       `${chrome.i18n.getMessage("verification_failed")} (${
         (e as DOMException).name || e
