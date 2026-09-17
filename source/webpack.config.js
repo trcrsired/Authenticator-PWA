@@ -6,7 +6,6 @@ module.exports = {
   mode: "development",
   devtool: "source-map",
   entry: {
-    argon: "./src/argon.ts",
     popup: "./src/popup.ts",
     import: "./src/import.ts",
     options: "./src/options.ts",
