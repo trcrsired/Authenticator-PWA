@@ -55,6 +55,11 @@ self.addEventListener("fetch", (event) => {
   if (url.origin !== location.origin) {
     return;
   }
+  // Never cache the worker script itself — update checks must always
+  // reach the network or a stale worker would never be replaced.
+  if (url.pathname === "/sw.js") {
+    return;
+  }
   event.respondWith(
     caches.match(request).then(
       (cached) =>

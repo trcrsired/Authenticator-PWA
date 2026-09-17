@@ -75,6 +75,10 @@
     "message": "Secret",
     "description": "Secret."
   },
+  "update_reload": {
+    "message": "A new version of Authenticator was installed. Reload now to update?",
+    "description": "Prompt to reload after a service worker update"
+  },
   "updateSuccess": {
     "message": "Success.",
     "description": "Update Success."
@@ -212,6 +216,18 @@
   "export_info": {
     "message": "Warning: all backups are unencrypted. Want to add an account to another app? Hover over the top right part of any account and hit the hidden button.",
     "description": "Export menu info text"
+  },
+  "export_qr": {
+    "message": "Export via QR code",
+    "description": "Export accounts as QR codes"
+  },
+  "export_qr_info": {
+    "message": "Scan each QR code in order using the QR scanner on the other device.",
+    "description": "Instructions for QR code export"
+  },
+  "export_qr_empty": {
+    "message": "Nothing to export — all accounts are unsupported or still encrypted.",
+    "description": "QR export has no supported entries"
   },
   "download_backup": {
     "message": "Download Backup File",

@@ -37,6 +37,25 @@ async function init() {
 
   // Add globals
   Vue.prototype.i18n = await loadI18nMessages();
+  const i18n = Vue.prototype.i18n;
+
+  // Offline caching via service worker. The worker skips waiting and
+  // claims clients on activate, so a new deploy takes over immediately;
+  // controllerchange then means "an update is live" — prompt to reload
+  // since pages are served cache-first.
+  if ("serviceWorker" in navigator) {
+    const wasControlled = !!navigator.serviceWorker.controller;
+    navigator.serviceWorker.register("/sw.js");
+    navigator.serviceWorker.addEventListener("controllerchange", () => {
+      // First install also claims the page — only prompt on a real update.
+      if (!wasControlled) {
+        return;
+      }
+      if (window.confirm(i18n.update_reload)) {
+        window.location.reload();
+      }
+    });
+  }
 
   // Load modules
   Vue.use(Vuex);

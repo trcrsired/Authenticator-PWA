@@ -1961,6 +1961,17 @@ svg {
   border: 2px solid grey;
 }
 
+.exportQr {
+  text-align: center;
+  margin: 10px 0;
+}
+.exportQr img {
+  display: block;
+  margin: 10px auto;
+  width: min(320px, 80vw);
+  image-rendering: pixelated;
+}
+
 #import .import_file {
   text-align: center;
 }

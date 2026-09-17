@@ -56,6 +56,16 @@
       >
         {{ i18n.download_enc_backup }}
       </button>
+      <a-button @click="exportQr()">{{ i18n.export_qr }}</a-button>
+      <div class="exportQr" v-if="exportQrs.length">
+        <div class="text">{{ i18n.export_qr_info }}</div>
+        <div v-for="(qr, i) in exportQrs" v-bind:key="i">
+          <img v-bind:src="qr" alt="QR" />
+          <div class="text" v-if="exportQrs.length > 1">
+            {{ i + 1 }} / {{ exportQrs.length }}
+          </div>
+        </div>
+      </div>
     </div>
     <a-button @click="showImport()">{{ i18n.import_backup }}</a-button>
   </div>
@@ -65,6 +75,8 @@ import Vue from "vue";
 import { isSafari } from "../../browser";
 import { UserSettings } from "../../models/settings";
 import { verifyUser } from "../../models/user-verification";
+import { getOTPAuthMigrationUrisFromEntries } from "../../models/migration";
+import * as QRGen from "qrcode-generator";
 
 export default Vue.extend({
   data: function () {
@@ -77,6 +89,7 @@ export default Vue.extend({
       exportFile: getBackupFile(exportData),
       exportEncryptedFile: getBackupFile(exportEncData, key),
       exportOneLineOtpAuthFile: getOneLineOtpBackupFile(exportData),
+      exportQrs: [] as string[],
     };
   },
   computed: {
@@ -120,7 +133,10 @@ export default Vue.extend({
     },
     async verifyBeforeExport(): Promise<boolean> {
       const credentialId = UserSettings.items.uvCredentialId;
-      if (!credentialId) {
+      if (
+        !this.$store.state.menu.useUserVerification ||
+        !credentialId
+      ) {
         return true;
       }
       const ok = await verifyUser(credentialId);
@@ -147,6 +163,37 @@ export default Vue.extend({
       const exportData = this.$store.state.accounts.exportData;
       const t = getBackupFile(exportData);
       window.open(t);
+    },
+    async exportQr() {
+      if (!(await this.verifyBeforeExport())) {
+        return;
+      }
+      const uris = getOTPAuthMigrationUrisFromEntries(
+        this.$store.state.accounts.entries
+      );
+      const urls: string[] = [];
+      try {
+        for (const uri of uris) {
+          const qr = QRGen(0, "L");
+          qr.addData(uri);
+          qr.make();
+          urls.push(qr.createDataURL(5));
+        }
+      } catch (e) {
+        this.$store.commit(
+          "notification/ephermalMessage",
+          this.i18n.errorqr
+        );
+        return;
+      }
+      if (!urls.length) {
+        this.$store.commit(
+          "notification/ephermalMessage",
+          this.i18n.export_qr_empty
+        );
+        return;
+      }
+      this.exportQrs = urls;
     },
     async downloadBackUpExportEncryptedFile() {
       if (!(await this.verifyBeforeExport())) {

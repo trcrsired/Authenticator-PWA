@@ -1,4 +1,16 @@
 import * as CryptoJS from "crypto-js";
+import { OTPAlgorithm, OTPType } from "./otp";
+
+// Minimal structural type so callers don't need full OTPEntry objects.
+export interface MigrationEntry {
+  type: OTPType;
+  issuer: string;
+  account: string;
+  secret: string | null;
+  counter: number;
+  digits: number;
+  algorithm: OTPAlgorithm;
+}
 
 function byteArray2Base32(bytes: number[]) {
   const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
@@ -94,9 +106,16 @@ export function getOTPAuthPerLineFromOPTAuthMigration(migrationUri: string) {
     if (byteData[offset] !== 10) {
       break;
     }
-    const lineLength = byteData[offset + 1];
-    const secretStart = offset + 4;
-    const secretLength = byteData[offset + 3];
+    // The OtpParameters length is a protobuf varint: it can take two
+    // bytes once an entry's fields exceed 127 bytes.
+    let lineLength = byteData[offset + 1];
+    let lenBytes = 1;
+    if (lineLength & 0x80) {
+      lineLength = (lineLength & 0x7f) | (byteData[offset + 2] << 7);
+      lenBytes = 2;
+    }
+    const secretStart = offset + lenBytes + 3;
+    const secretLength = byteData[offset + lenBytes + 2];
     const secretBytes = subBytesArray(byteData, secretStart, secretLength);
     const secret = byteArray2Base32(secretBytes);
     const accountStart = secretStart + secretLength + 2;
@@ -123,7 +142,182 @@ export function getOTPAuthPerLineFromOPTAuthMigration(migrationUri: string) {
       line += `&counter=${counter}`;
     }
     lines.push(line);
-    offset += lineLength + 2;
+    offset += 1 + lenBytes + lineLength;
   }
   return lines;
+}
+
+// ==== otpauth-migration export (protobuf encoder) ====
+
+// Keep each QR comfortably under the ~2953 byte QR capacity.
+const MIGRATION_MAX_URI_LENGTH = 2200;
+
+function base32ToBytes(base32: string): number[] {
+  const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+  const clean = base32.toUpperCase().replace(/[\s=]/g, "");
+  const bytes: number[] = [];
+  let bits = 0;
+  let value = 0;
+  for (const c of clean) {
+    const idx = chars.indexOf(c);
+    if (idx === -1) {
+      continue;
+    }
+    value = (value << 5) | idx;
+    bits += 5;
+    if (bits >= 8) {
+      bytes.push((value >>> (bits - 8)) & 0xff);
+      bits -= 8;
+    }
+  }
+  return bytes;
+}
+
+function hexToBytes(hex: string): number[] {
+  const bytes: number[] = [];
+  for (let i = 0; i + 1 < hex.length; i += 2) {
+    bytes.push(parseInt(hex.substr(i, 2), 16));
+  }
+  return bytes;
+}
+
+function pushVarintValue(out: number[], value: number) {
+  let v = value;
+  while (v > 127) {
+    out.push((v & 0x7f) | 0x80);
+    v = Math.floor(v / 128);
+  }
+  out.push(v);
+}
+
+function pushVarintField(out: number[], field: number, value: number) {
+  out.push(field << 3);
+  pushVarintValue(out, value);
+}
+
+function pushBytesField(out: number[], field: number, bytes: number[]) {
+  out.push((field << 3) | 2);
+  pushVarintValue(out, bytes.length);
+  for (const b of bytes) {
+    out.push(b);
+  }
+}
+
+function stringToBytes(s: string): number[] {
+  return Array.from(new TextEncoder().encode(s));
+}
+
+// Encodes one entry as an OtpParameters protobuf message. Returns null
+// for types the migration format can't express (steam, battle) and for
+// entries whose secret is still encrypted.
+function entryToOtpParameters(entry: MigrationEntry): number[] | null {
+  if (!entry.secret) {
+    return null;
+  }
+  let secretBytes: number[];
+  let migrationType: number; // 1 = HOTP, 2 = TOTP
+  switch (entry.type) {
+    case OTPType.totp:
+      secretBytes = base32ToBytes(entry.secret);
+      migrationType = 2;
+      break;
+    case OTPType.hotp:
+      secretBytes = base32ToBytes(entry.secret);
+      migrationType = 1;
+      break;
+    case OTPType.hex:
+      secretBytes = hexToBytes(entry.secret);
+      migrationType = 2;
+      break;
+    case OTPType.hhex:
+      secretBytes = hexToBytes(entry.secret);
+      migrationType = 1;
+      break;
+    default:
+      return null;
+  }
+  if (!secretBytes.length) {
+    return null;
+  }
+  const algorithm =
+    entry.algorithm === OTPAlgorithm.SHA256
+      ? 2
+      : entry.algorithm === OTPAlgorithm.SHA512
+      ? 3
+      : 1;
+  const params: number[] = [];
+  pushBytesField(params, 1, secretBytes);
+  pushBytesField(params, 2, stringToBytes(entry.account || ""));
+  pushBytesField(params, 3, stringToBytes(entry.issuer || ""));
+  pushVarintField(params, 4, algorithm);
+  pushVarintField(params, 5, entry.digits === 8 ? 2 : 1);
+  pushVarintField(params, 6, migrationType);
+  if (migrationType === 1) {
+    pushVarintField(params, 7, entry.counter || 0);
+  }
+  return params;
+}
+
+function bytesToBase64(bytes: number[]): string {
+  let bin = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < bytes.length; i += chunk) {
+    bin += String.fromCharCode.apply(
+      null,
+      bytes.slice(i, i + chunk)
+    );
+  }
+  return btoa(bin);
+}
+
+function encodeMigrationPayload(
+  otpParams: number[][],
+  batchSize: number,
+  batchIndex: number,
+  batchId: number
+): string {
+  const payload: number[] = [];
+  for (const params of otpParams) {
+    pushBytesField(payload, 1, params);
+  }
+  pushVarintField(payload, 2, 1); // version
+  pushVarintField(payload, 3, batchSize);
+  pushVarintField(payload, 4, batchIndex);
+  pushVarintField(payload, 5, batchId);
+  return (
+    "otpauth-migration://offline?data=" +
+    encodeURIComponent(bytesToBase64(payload))
+  );
+}
+
+// Returns one or more otpauth-migration:// URIs (batching like Google
+// Authenticator when the payload would exceed QR capacity).
+export function getOTPAuthMigrationUrisFromEntries(
+  entries: MigrationEntry[]
+): string[] {
+  const batchId = Math.floor(Math.random() * 0x7fffffff);
+  const batches: number[][][] = [];
+  let current: number[][] = [];
+  for (const entry of entries) {
+    const params = entryToOtpParameters(entry);
+    if (!params) {
+      continue;
+    }
+    current.push(params);
+    if (
+      encodeMigrationPayload(current, 1, 0, batchId).length >
+        MIGRATION_MAX_URI_LENGTH &&
+      current.length > 1
+    ) {
+      current.pop();
+      batches.push(current);
+      current = [params];
+    }
+  }
+  if (current.length) {
+    batches.push(current);
+  }
+  return batches.map((batch, index) =>
+    encodeMigrationPayload(batch, batches.length, index, batchId)
+  );
 }
