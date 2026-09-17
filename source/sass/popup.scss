@@ -961,16 +961,6 @@ svg {
   }
 }
 
-@keyframes glint {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.15;
-  }
-}
-
 @keyframes fadeshow {
   0% {
     opacity: 0;
@@ -1166,16 +1156,9 @@ svg {
   }
 }
 
-// Dark overrides
+// Dark overrides — the red timeout blink is inherited from the base
+// (twinkling) so dark behaves like light.
 .theme-dark {
-  #codes {
-    &:not(.edit) {
-      .code.timeout:not(.hotp) {
-        animation: glint 1s infinite;
-      }
-    }
-  }
-
   .message-box,
   #info {
     border: #ccc 1px solid;
@@ -1250,6 +1233,45 @@ svg {
   }
 }
 
+// Simple & Compact dark overrides — borders blend into the dark surfaces
+// like they blend into white in light mode.
+.theme-simple.theme-dark,
+.theme-compact.theme-dark {
+  .header {
+    border-bottom-color: #242424 !important;
+
+    &::after {
+      border-bottom-color: #444;
+    }
+  }
+
+  #search {
+    border-color: #242424 !important;
+  }
+
+  .entry {
+    border-color: transparent !important;
+  }
+
+  &:not(.edit) {
+    .entry:hover {
+      background: #2e2e2e;
+    }
+  }
+
+  .control-group select {
+    border-color: #242424 !important;
+  }
+
+  .menuList {
+    border-color: #242424 !important;
+
+    p {
+      border-color: #242424 !important;
+    }
+  }
+}
+
 // Compact overrides
 .theme-compact {
   #codes {
@@ -1286,6 +1308,12 @@ svg {
 .theme-compact:not(.theme-dark) {
   a.entry {
     border-bottom: #eee 1px solid !important;
+  }
+}
+
+.theme-compact.theme-dark {
+  a.entry {
+    border-bottom: #444 1px solid !important;
   }
 }
 

@@ -31,6 +31,7 @@ interface UserSettingsData {
   pauseInBackground?: boolean;
   requireUserVerification?: boolean;
   requireUnlockVerification?: boolean;
+  uvAsked?: boolean;
   uvCredentialId?: string;
   encodedPhrase?: string;
   smartFilter?: boolean;
@@ -191,6 +192,7 @@ type BooleanOption =
   | "pauseInBackground"
   | "requireUnlockVerification"
   | "requireUserVerification"
+  | "uvAsked"
   | "smartFilter";
 
 type NumberOption = "autolock" | "lastRemindingBackupTime" | "offset" | "zoom";
@@ -210,6 +212,7 @@ function isBooleanOption(key: string): key is BooleanOption {
     "pauseInBackground",
     "requireUnlockVerification",
     "requireUserVerification",
+    "uvAsked",
     "smartFilter",
   ].includes(key);
 }

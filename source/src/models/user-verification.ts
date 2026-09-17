@@ -1,5 +1,6 @@
 // Gate sensitive actions behind platform user verification
 // (Face ID / Touch ID / Windows Hello / Android screen lock) via WebAuthn.
+import { UserSettings } from "./settings";
 
 export async function isUserVerificationAvailable(): Promise<boolean> {
   if (
@@ -123,6 +124,34 @@ async function adoptExistingCredential(): Promise<string | null> {
 // Tracks a gestureless startup verification so a real tap can abort it
 // — Android only allows one pending WebAuthn request at a time.
 let startupVerificationAbort: AbortController | null = null;
+
+// After a successful import, offer to enable app-unlock verification —
+// once ever, only when the platform supports it and nothing is enrolled.
+export async function maybeOfferUnlockSetup(commit: (enabled: boolean) => void) {
+  const items = UserSettings.items;
+  if (
+    items.uvAsked ||
+    items.uvCredentialId ||
+    items.requireUnlockVerification ||
+    items.requireUserVerification
+  ) {
+    return;
+  }
+  if (!(await isUserVerificationAvailable())) {
+    return;
+  }
+  items.uvAsked = true;
+  await UserSettings.commitItems();
+  if (!confirm(chrome.i18n.getMessage("ask_unlock_verification"))) {
+    return;
+  }
+  const credentialId = await enrollUserVerification();
+  if (credentialId) {
+    items.uvCredentialId = credentialId;
+    await UserSettings.commitItems();
+    commit(true);
+  }
+}
 
 // Prompts for biometric/screen-lock verification. Returns true when the
 // WebAuthn API is unavailable so the feature degrades gracefully.
