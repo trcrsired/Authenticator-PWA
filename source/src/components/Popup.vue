@@ -95,6 +95,13 @@ for (const module of computedPrototype) {
   Object.assign(computed, module);
 }
 
+// Page background per theme (the "white-1" sass value) — drives the
+// OS title bar / status bar color via <meta name="theme-color">.
+const THEME_COLORS: { [theme: string]: string } = {
+  dark: "#242424",
+  accessibility: "#000000",
+};
+
 export default Vue.extend({
   data: function () {
     return {
@@ -103,6 +110,17 @@ export default Vue.extend({
     };
   },
   computed,
+  watch: {
+    theme: {
+      immediate: true,
+      handler(theme: string) {
+        const meta = document.querySelector('meta[name="theme-color"]');
+        if (meta) {
+          meta.setAttribute("content", THEME_COLORS[theme] ?? "#ffffff");
+        }
+      },
+    },
+  },
   methods: {
     hideQr() {
       this.$store.commit("style/hideQr");
