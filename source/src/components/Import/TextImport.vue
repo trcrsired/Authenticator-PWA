@@ -34,6 +34,7 @@ import {
 } from "../../models/import-backup";
 import { EntryStorage } from "../../models/storage";
 import { Encryption } from "../../models/encryption";
+import { maybeOfferUnlockSetup } from "../../models/user-verification";
 
 export default Vue.extend({
   data: function () {
@@ -115,6 +116,9 @@ export default Vue.extend({
         // Embedded in the main app: refresh the list and close the panel
         await this.$store.dispatch("accounts/updateEntries");
         this.$store.commit("style/hideInfo");
+        maybeOfferUnlockSetup((enabled) =>
+          this.$store.commit("menu/setUnlockVerification", enabled)
+        );
       } else {
         // Standalone import page: close the tab if script-opened,
         // otherwise navigate back to the app

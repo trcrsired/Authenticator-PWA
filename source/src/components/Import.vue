@@ -1,5 +1,5 @@
 <template>
-  <div id="import" class="theme-normal">
+  <div id="import" v-bind:class="themeClasses">
     <div v-if="!shouldShowPassphrase">
       <div class="import_tab">
         <input
@@ -44,6 +44,7 @@ import Vue from "vue";
 import FileImport from "./Import/FileImport.vue";
 import QrImport from "./Import/QrImport.vue";
 import TextImport from "./Import/TextImport.vue";
+import { resolveThemeClasses } from "../models/theme";
 
 export default Vue.extend({
   props: {
@@ -52,6 +53,11 @@ export default Vue.extend({
     initialTab: {
       type: String,
       default: "",
+    },
+  },
+  computed: {
+    themeClasses(): string[] {
+      return resolveThemeClasses();
     },
   },
   data: function () {

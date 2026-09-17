@@ -13,6 +13,7 @@ import jsQR from "jsqr";
 import { getEntryDataFromOTPAuthPerLine } from "../../models/import-backup";
 import { EntryStorage } from "../../models/storage";
 import { Encryption } from "../../models/encryption";
+import { maybeOfferUnlockSetup } from "../../models/user-verification";
 
 export default Vue.extend({
   data() {
@@ -84,6 +85,9 @@ export default Vue.extend({
           this.i18n.updateSuccess
         );
         this.$store.commit("style/hideInfo");
+        maybeOfferUnlockSetup((enabled) =>
+          this.$store.commit("menu/setUnlockVerification", enabled)
+        );
       } else {
         this.error = this.i18n.errorqr;
       }

@@ -128,6 +128,9 @@ export default Vue.extend({
       },
       async set(enabled: boolean) {
         if (!enabled) {
+          if (!confirm(this.i18n.confirm_disable_verification)) {
+            return;
+          }
           this.$store.commit("menu/setUserVerification", false);
           return;
         }
@@ -143,6 +146,9 @@ export default Vue.extend({
       },
       async set(enabled: boolean) {
         if (!enabled) {
+          if (!confirm(this.i18n.confirm_disable_verification)) {
+            return;
+          }
           this.$store.commit("menu/setUnlockVerification", false);
           return;
         }

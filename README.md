@@ -2,6 +2,12 @@
 
 A Progressive Web App port of the Authenticator extension for TOTP/HOTP two-factor codes.
 
+## Get it
+
+- **PWA**: install directly from <https://authenticator-pwa.pages.dev> in any modern browser
+- **PWA Store**: listed on [PWA Store](https://pwa-store-7x5.pages.dev)
+- **Microsoft Store**: also available as a packaged app there
+
 ## Why a PWA?
 
 Because it should have been one all along. Authenticator is shipped as a browser extension that doesn't work on mobile at all and renders poorly on platforms like Edge — which effectively forced users onto the mobile **app** for a task that is nothing more than a counter, a secret, and HMAC. There is no technical reason an authenticator needs to be a native app or a desktop-only extension; every capability it needs (crypto, storage, camera, offline operation) is available to a web page today.

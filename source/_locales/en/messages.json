@@ -577,5 +577,13 @@
   "dark_mode": {
     "message": "Dark mode",
     "description": "Light/dark palette selector (auto follows system)"
+  },
+  "ask_unlock_verification": {
+    "message": "Enable biometric verification (Face ID, fingerprint, or screen lock) when opening Authenticator?",
+    "description": "Prompt to enable biometric unlock after first import"
+  },
+  "confirm_disable_verification": {
+    "message": "Disable biometric verification? Your codes will no longer be protected by Face ID, fingerprint, or screen lock.",
+    "description": "Confirm before disabling biometric verification"
   }
 }
