@@ -99,6 +99,7 @@ export default Vue.extend({
   data: function () {
     return {
       hideoutline: true,
+      unlocking: false,
     };
   },
   computed,
@@ -107,9 +108,27 @@ export default Vue.extend({
       this.$store.commit("style/hideQr");
     },
     async unlockApp() {
+      if (this.unlocking) {
+        return;
+      }
       const credentialId = UserSettings.items.uvCredentialId;
-      if (!credentialId || (await verifyUser(credentialId))) {
+      if (!credentialId) {
         this.$store.commit("style/setAppLocked", false);
+        return;
+      }
+      this.unlocking = true;
+      try {
+        const ok = await verifyUser(credentialId);
+        if (ok) {
+          this.$store.commit("style/setAppLocked", false);
+        } else {
+          this.$store.commit(
+            "notification/alert",
+            this.i18n.verification_failed
+          );
+        }
+      } finally {
+        this.unlocking = false;
       }
     },
   },

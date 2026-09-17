@@ -39,7 +39,10 @@ export async function enrollUserVerification(): Promise<string | null> {
         authenticatorSelection: {
           authenticatorAttachment: "platform",
           userVerification: "required",
-          residentKey: "discouraged",
+          // Android/Google Password Manager only stores discoverable
+          // credentials; non-resident keys can't be resolved later.
+          residentKey: "required",
+          requireResidentKey: true,
         },
         timeout: 60000,
       },
@@ -67,7 +70,24 @@ export async function verifyUser(credentialIdB64: string): Promise<boolean> {
     const assertion = await navigator.credentials.get({
       publicKey: {
         challenge: crypto.getRandomValues(new Uint8Array(32)),
-        allowCredentials: [{ type: "public-key", id: rawId }],
+        allowCredentials: [
+          { type: "public-key", id: rawId, transports: ["internal"] },
+        ],
+        userVerification: "required",
+        timeout: 60000,
+      },
+    });
+    return !!assertion;
+  } catch (e) {
+    console.warn("WebAuthn verify with stored credential failed", e);
+  }
+  // Fallback: let the platform resolve any passkey registered for this
+  // origin (Android stores passkeys as discoverable credentials).
+  try {
+    const assertion = await navigator.credentials.get({
+      publicKey: {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        allowCredentials: [],
         userVerification: "required",
         timeout: 60000,
       },
