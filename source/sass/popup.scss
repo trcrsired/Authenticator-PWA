@@ -277,7 +277,7 @@ svg {
     }
 
     .code.timeout:not(.hotp) {
-      color: #dd4b39;
+      animation: twinkling 1s infinite ease-in-out;
     }
   }
 
@@ -349,30 +349,16 @@ svg {
 
     circle {
       fill: none;
+      transform: rotate(-90deg);
       transform-origin: 50% 50%;
-
-      &.track {
-        @include themify($themes) {
-          stroke: themed("grey-2");
-        }
-        stroke-width: 2px;
-        opacity: 0.35;
+      @include themify($themes) {
+        stroke: themed("grey-1");
       }
-
-      // Quarter-arc that sweeps around once per period. Rotating a
-      // transform is GPU-composited — unlike the old stroke-dashoffset
-      // animation, this paints zero frames per second.
-      &.sweep {
-        transform: rotate(-90deg);
-        @include themify($themes) {
-          stroke: themed("grey-1");
-        }
-        stroke-width: 8px;
-        stroke-dasharray: 6.28 18.84;
-        animation-name: timer;
-        animation-iteration-count: infinite;
-        animation-timing-function: linear;
-      }
+      stroke-width: 8px;
+      stroke-dasharray: 25.12;
+      animation-name: timer;
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
     }
   }
 
@@ -950,11 +936,38 @@ svg {
 
 // Animations
 @keyframes timer {
-  from {
-    transform: rotate(-90deg);
-  }
   to {
-    transform: rotate(270deg);
+    stroke-dashoffset: -25.12;
+  }
+}
+
+@keyframes twinkling {
+  0% {
+    color: #eea59c;
+  }
+  100% {
+    color: #dd4b39;
+  }
+}
+
+@keyframes flash {
+  0%,
+  33% {
+    opacity: 0;
+  }
+  33.1%,
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes glint {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
   }
 }
 
@@ -1158,7 +1171,7 @@ svg {
   #codes {
     &:not(.edit) {
       .code.timeout:not(.hotp) {
-        color: #dd4b39;
+        animation: glint 1s infinite;
       }
     }
   }
@@ -1344,7 +1357,7 @@ svg {
   #codes {
     &:not(.edit) {
       .code.timeout:not(.hotp) {
-        color: #dd4b39;
+        animation: flash 1s infinite;
       }
     }
   }

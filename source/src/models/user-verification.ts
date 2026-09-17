@@ -53,6 +53,13 @@ export async function enrollUserVerification(): Promise<string | null> {
     return btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
   } catch (e) {
     console.error("WebAuthn enrollment failed", e);
+    // Surface the DOMException name so failures are diagnosable
+    // (e.g. NotSupportedError on browsers without platform passkeys).
+    alert(
+      `${chrome.i18n.getMessage("verification_failed")} (${
+        (e as DOMException).name || e
+      })`
+    );
     return null;
   }
 }

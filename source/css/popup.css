@@ -607,7 +607,7 @@ svg {
   height: 24px;
 }
 #codes:not(.edit) .code.timeout:not(.hotp) {
-  color: #dd4b39;
+  animation: twinkling 1s infinite ease-in-out;
 }
 .theme-normal #codes .no-entry {
   color: grey;
@@ -740,54 +740,30 @@ svg {
 }
 .entry .sector circle {
   fill: none;
+  transform: rotate(-90deg);
   transform-origin: 50% 50%;
 }
-.theme-normal .entry .sector circle.track {
-  stroke: #ccc;
+.theme-normal .entry .sector circle {
+  stroke: grey;
 }
-.theme-accessibility .entry .sector circle.track {
+.theme-accessibility .entry .sector circle {
   stroke: white;
 }
-.theme-dark .entry .sector circle.track {
-  stroke: rgba(255, 255, 255, 0.15);
-}
-.theme-simple .entry .sector circle.track {
-  stroke: #ccc;
-}
-.theme-compact .entry .sector circle.track {
-  stroke: #ccc;
-}
-.theme-flat .entry .sector circle.track {
-  stroke: #ccc;
-}
-.entry .sector circle.track {
-  stroke-width: 2px;
-  opacity: 0.35;
-}
-.entry .sector circle.sweep {
-  transform: rotate(-90deg);
-}
-.theme-normal .entry .sector circle.sweep {
+.theme-dark .entry .sector circle {
   stroke: grey;
 }
-.theme-accessibility .entry .sector circle.sweep {
-  stroke: white;
-}
-.theme-dark .entry .sector circle.sweep {
+.theme-simple .entry .sector circle {
   stroke: grey;
 }
-.theme-simple .entry .sector circle.sweep {
+.theme-compact .entry .sector circle {
   stroke: grey;
 }
-.theme-compact .entry .sector circle.sweep {
+.theme-flat .entry .sector circle {
   stroke: grey;
 }
-.theme-flat .entry .sector circle.sweep {
-  stroke: grey;
-}
-.entry .sector circle.sweep {
+.entry .sector circle {
   stroke-width: 8px;
-  stroke-dasharray: 6.28 18.84;
+  stroke-dasharray: 25.12;
   animation-name: timer;
   animation-iteration-count: infinite;
   animation-timing-function: linear;
@@ -1834,11 +1810,32 @@ svg {
 }
 
 @keyframes timer {
-  from {
-    transform: rotate(-90deg);
-  }
   to {
-    transform: rotate(270deg);
+    stroke-dashoffset: -25.12;
+  }
+}
+@keyframes twinkling {
+  0% {
+    color: #eea59c;
+  }
+  100% {
+    color: #dd4b39;
+  }
+}
+@keyframes flash {
+  0%, 33% {
+    opacity: 0;
+  }
+  33.1%, 100% {
+    opacity: 1;
+  }
+}
+@keyframes glint {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.15;
   }
 }
 @keyframes fadeshow {
@@ -2043,7 +2040,7 @@ svg {
 }
 
 .theme-dark #codes:not(.edit) .code.timeout:not(.hotp) {
-  color: #dd4b39;
+  animation: glint 1s infinite;
 }
 .theme-dark .message-box,
 .theme-dark #info {
@@ -2182,7 +2179,7 @@ svg {
   fill: yellow;
 }
 .theme-accessibility #codes:not(.edit) .code.timeout:not(.hotp) {
-  color: #dd4b39;
+  animation: flash 1s infinite;
 }
 .theme-accessibility #info {
   border: 1px solid white;

@@ -182,7 +182,7 @@ export default Vue.extend({
       const credentialId = await enrollUserVerification();
       if (!credentialId) {
         this.$store.commit(
-          "notification/ephermalMessage",
+          "notification/alert",
           this.i18n.verification_failed
         );
         return false;
