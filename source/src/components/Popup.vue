@@ -79,7 +79,10 @@ import MainBody from "./Popup/MainBody.vue";
 import MenuPage from "./Popup/MenuPage.vue";
 import PageHandler from "./Popup/PageHandler.vue";
 import NotificationHandler from "./Popup/NotificationHandler.vue";
-import { verifyUser } from "../models/user-verification";
+import {
+  verifyUser,
+  cancelStartupVerification,
+} from "../models/user-verification";
 import { UserSettings } from "../models/settings";
 
 const computedPrototype = [
@@ -129,6 +132,10 @@ export default Vue.extend({
       if (this.unlocking) {
         return;
       }
+      // A gestureless startup prompt may still be pending (Android only
+      // allows one WebAuthn request) — abort it so this tap-backed call
+      // can proceed.
+      cancelStartupVerification();
       const credentialId = UserSettings.items.uvCredentialId;
       if (!credentialId) {
         this.$store.commit("style/setAppLocked", false);

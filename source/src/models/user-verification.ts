@@ -120,9 +120,16 @@ async function adoptExistingCredential(): Promise<string | null> {
   }
 }
 
+// Tracks a gestureless startup verification so a real tap can abort it
+// — Android only allows one pending WebAuthn request at a time.
+let startupVerificationAbort: AbortController | null = null;
+
 // Prompts for biometric/screen-lock verification. Returns true when the
 // WebAuthn API is unavailable so the feature degrades gracefully.
-export async function verifyUser(credentialIdB64: string): Promise<boolean> {
+export async function verifyUser(
+  credentialIdB64: string,
+  signal?: AbortSignal
+): Promise<boolean> {
   if (!(await isUserVerificationAvailable())) {
     return true;
   }
@@ -139,9 +146,13 @@ export async function verifyUser(credentialIdB64: string): Promise<boolean> {
         userVerification: "required",
         timeout: 60000,
       },
+      signal,
     });
     return !!assertion;
   } catch (e) {
+    if ((e as DOMException).name === "AbortError") {
+      return false;
+    }
     console.warn("WebAuthn verify with stored credential failed", e);
   }
   // Fallback: let the platform resolve any passkey registered for this
@@ -154,10 +165,31 @@ export async function verifyUser(credentialIdB64: string): Promise<boolean> {
         userVerification: "required",
         timeout: 60000,
       },
+      signal,
     });
     return !!assertion;
   } catch (e) {
-    console.error("WebAuthn verification failed", e);
+    if ((e as DOMException).name !== "AbortError") {
+      console.error("WebAuthn verification failed", e);
+    }
     return false;
   }
+}
+
+// Auto-prompt at app startup. If the platform needs a real gesture to
+// show its UI (Android Edge), the tap-to-unlock overlay aborts this
+// request first via cancelStartupVerification().
+export async function verifyUserAtStartup(
+  credentialIdB64: string
+): Promise<boolean> {
+  startupVerificationAbort = new AbortController();
+  try {
+    return await verifyUser(credentialIdB64, startupVerificationAbort.signal);
+  } finally {
+    startupVerificationAbort = null;
+  }
+}
+
+export function cancelStartupVerification() {
+  startupVerificationAbort?.abort();
 }

@@ -25,6 +25,7 @@ import { Advisor } from "./store/Advisor";
 import { UserSettings } from "./models/settings";
 import { initOtpWasm } from "./models/wasm-otp";
 import { handleRedirect as handleOneDriveRedirect } from "./models/onedrive";
+import { verifyUserAtStartup } from "./models/user-verification";
 
 async function init() {
   // Crypto falls back to the JS implementation if the wasm fetch fails
@@ -130,14 +131,17 @@ async function init() {
   }).$mount("#authenticator");
 
   // Gate app open behind platform verification (Face ID / fingerprint /
-  // screen lock) when enabled. Do NOT auto-prompt here: WebAuthn needs a
-  // user gesture on Android, and a gestureless request can hang and block
-  // every later call. The "Tap to unlock" overlay provides the gesture.
-  if (
-    instance.$store.state.menu.useUnlockVerification &&
-    UserSettings.items.uvCredentialId
-  ) {
+  // screen lock) when enabled. Auto-prompt immediately — on platforms
+  // needing a gesture (Android Edge) the request may hang, but the
+  // tap-to-unlock overlay aborts it before starting a gesture-backed one.
+  const uvCredentialId = UserSettings.items.uvCredentialId;
+  if (instance.$store.state.menu.useUnlockVerification && uvCredentialId) {
     instance.$store.commit("style/setAppLocked", true);
+    verifyUserAtStartup(uvCredentialId).then((ok) => {
+      if (ok) {
+        instance.$store.commit("style/setAppLocked", false);
+      }
+    });
   }
 
   // Prompt for password if needed
