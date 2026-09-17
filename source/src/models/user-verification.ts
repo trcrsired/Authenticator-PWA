@@ -16,6 +16,33 @@ export async function isUserVerificationAvailable(): Promise<boolean> {
   }
 }
 
+function createOptions(discoverable: boolean): CredentialCreationOptions {
+  return {
+    publicKey: {
+      challenge: crypto.getRandomValues(new Uint8Array(32)),
+      rp: { name: "Authenticator" },
+      user: {
+        id: crypto.getRandomValues(new Uint8Array(16)),
+        name: "local-user",
+        displayName: "Authenticator user",
+      },
+      pubKeyCredParams: [
+        { type: "public-key", alg: -7 },
+        { type: "public-key", alg: -257 },
+      ],
+      authenticatorSelection: {
+        authenticatorAttachment: "platform",
+        userVerification: "required",
+        // Android/Google Password Manager only stores discoverable
+        // credentials; non-resident keys can't be resolved later.
+        residentKey: discoverable ? "required" : "discouraged",
+        requireResidentKey: discoverable,
+      },
+      timeout: 60000,
+    },
+  };
+}
+
 // Creates a platform passkey; returns its credential id (base64), or null
 // if enrollment failed / was cancelled / is unsupported.
 export async function enrollUserVerification(): Promise<string | null> {
@@ -23,38 +50,67 @@ export async function enrollUserVerification(): Promise<string | null> {
     return null;
   }
   try {
-    const cred = (await navigator.credentials.create({
-      publicKey: {
-        challenge: crypto.getRandomValues(new Uint8Array(32)),
-        rp: { name: "Authenticator" },
-        user: {
-          id: crypto.getRandomValues(new Uint8Array(16)),
-          name: "local-user",
-          displayName: "Authenticator user",
-        },
-        pubKeyCredParams: [
-          { type: "public-key", alg: -7 },
-          { type: "public-key", alg: -257 },
-        ],
-        authenticatorSelection: {
-          authenticatorAttachment: "platform",
-          userVerification: "required",
-          // Android/Google Password Manager only stores discoverable
-          // credentials; non-resident keys can't be resolved later.
-          residentKey: "required",
-          requireResidentKey: true,
-        },
-        timeout: 60000,
-      },
-    })) as PublicKeyCredential | null;
+    const cred = (await navigator.credentials.create(
+      createOptions(true)
+    )) as PublicKeyCredential | null;
     if (!cred) {
       return null;
     }
     return btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
   } catch (e) {
+    // Android/Google Password Manager keeps one discoverable passkey
+    // per RP and refuses a second create() with NotReadableError. The
+    // existing passkey is still usable — resolve and adopt its id.
+    if ((e as DOMException).name === "NotReadableError") {
+      const adopted = await adoptExistingCredential();
+      if (adopted) {
+        return adopted;
+      }
+      // Nothing discoverable resolved (e.g. only an old non-discoverable
+      // credential exists) — retry with the pre-passkey enrollment
+      // options that demonstrably worked on this platform.
+      try {
+        const cred = (await navigator.credentials.create(
+          createOptions(false)
+        )) as PublicKeyCredential | null;
+        if (cred) {
+          return btoa(String.fromCharCode(...new Uint8Array(cred.rawId)));
+        }
+      } catch (e2) {
+        console.error("WebAuthn non-resident enrollment failed", e2);
+      }
+      return null;
+    }
     console.error("WebAuthn enrollment failed", e);
     // Surface the DOMException name so failures are diagnosable
     // (e.g. NotSupportedError on browsers without platform passkeys).
+    alert(
+      `${chrome.i18n.getMessage("verification_failed")} (${
+        (e as DOMException).name || e
+      })`
+    );
+    return null;
+  }
+}
+
+// Resolves a passkey already registered for this origin (empty
+// allowCredentials = any discoverable credential) and returns its id.
+async function adoptExistingCredential(): Promise<string | null> {
+  try {
+    const assertion = (await navigator.credentials.get({
+      publicKey: {
+        challenge: crypto.getRandomValues(new Uint8Array(32)),
+        allowCredentials: [],
+        userVerification: "required",
+        timeout: 60000,
+      },
+    })) as PublicKeyCredential | null;
+    if (!assertion) {
+      return null;
+    }
+    return btoa(String.fromCharCode(...new Uint8Array(assertion.rawId)));
+  } catch (e) {
+    console.error("WebAuthn existing-credential lookup failed", e);
     alert(
       `${chrome.i18n.getMessage("verification_failed")} (${
         (e as DOMException).name || e

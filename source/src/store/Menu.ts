@@ -15,6 +15,8 @@ export class Menu implements Module {
           UserSettings.items.requireUserVerification === true,
         useUnlockVerification:
           UserSettings.items.requireUnlockVerification === true,
+        // Default on: absent key means pause while hidden.
+        pauseInBackground: UserSettings.items.pauseInBackground !== false,
         enableContextMenu: UserSettings.items.enableContextMenu === true,
         theme: UserSettings.items.theme || (isSafari ? "flat" : "auto"),
         browserDark:
@@ -72,6 +74,11 @@ export class Menu implements Module {
           if (!enabled && !UserSettings.items.requireUserVerification) {
             delete UserSettings.items.uvCredentialId;
           }
+          UserSettings.commitItems();
+        },
+        setPauseInBackground(state: MenuState, enabled: boolean) {
+          state.pauseInBackground = enabled;
+          UserSettings.items.pauseInBackground = enabled;
           UserSettings.commitItems();
         },
         setEnableContextMenu(state: MenuState, enableContextMenu: boolean) {

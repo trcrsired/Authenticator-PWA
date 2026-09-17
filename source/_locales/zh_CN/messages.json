@@ -520,5 +520,57 @@
   },
   "activate_auto_filter": {
     "message": "Warning: Smart filter loosely matches the domain name to an account. Always verify that you are on the correct website before entering a code!"
+  },
+  "update_reload": {
+    "message": "已安装新版 Authenticator，是否立即刷新以更新？",
+    "description": "Prompt to reload after a service worker update"
+  },
+  "export_qr": {
+    "message": "通过二维码导出",
+    "description": "Export accounts as QR codes"
+  },
+  "export_qr_info": {
+    "message": "请使用另一台设备上的二维码扫描器按顺序扫描每个二维码。",
+    "description": "Instructions for QR code export"
+  },
+  "export_qr_empty": {
+    "message": "没有可导出的内容 — 所有账号类型不受支持或仍处于加密状态。",
+    "description": "QR export has no supported entries"
+  },
+  "require_user_verification": {
+    "message": "导出备份前要求进行生物识别验证（人脸、指纹或屏幕锁）",
+    "description": "Require device user verification before exporting backups"
+  },
+  "verification_failed": {
+    "message": "验证失败或已取消。",
+    "description": "User verification failed"
+  },
+  "require_unlock_verification": {
+    "message": "打开应用时要求进行生物识别验证（人脸、指纹或屏幕锁）",
+    "description": "Require device user verification to unlock the app"
+  },
+  "tap_to_unlock": {
+    "message": "点按以解锁",
+    "description": "Tap to verify and unlock the app"
+  },
+  "no_file_chosen": {
+    "message": "未选择文件",
+    "description": "File input placeholder text"
+  },
+  "theme_auto": {
+    "message": "自动（跟随系统）",
+    "description": "Follow the browser color scheme"
+  },
+  "onedrive_not_configured": {
+    "message": "OneDrive 未配置：需要 Azure 应用的客户端 ID。",
+    "description": "Shown when OneDrive backup is used without a client ID"
+  },
+  "advisor_insight_backup_reminder": {
+    "message": "请始终在你信任的位置备份动态口令（菜单 → 备份）。浏览器存储并不保证稳定 — 可能因磁盘空间不足、清除站点数据或重新安装而被清空，导致口令丢失。",
+    "description": "Advisor insight reminding users to back up their codes"
+  },
+  "pause_in_background": {
+    "message": "应用在后台时暂停倒计时",
+    "description": "Pause OTP countdown updates when the app is not visible"
   }
 }

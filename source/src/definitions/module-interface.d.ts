@@ -36,6 +36,7 @@ interface MenuState {
   smartFilter: boolean;
   useUserVerification: boolean;
   useUnlockVerification: boolean;
+  pauseInBackground: boolean;
   enableContextMenu: boolean;
   theme: string;
   backupDisabled: boolean;

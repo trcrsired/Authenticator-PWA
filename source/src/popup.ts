@@ -107,15 +107,18 @@ async function init() {
     mounted() {
       // Update time based entries' codes. Pause while the tab is
       // hidden so a backgrounded PWA burns no CPU, and refresh
-      // immediately on return.
+      // immediately on return — unless the user opted out of the
+      // background pause in Preferences.
       const updateCodes = () =>
         this.$store.commit("accounts/updateCodes");
       updateCodes();
       let timer = window.setInterval(updateCodes, 1000);
       document.addEventListener("visibilitychange", () => {
         if (document.hidden) {
-          clearInterval(timer);
-          timer = -1;
+          if (this.$store.state.menu.pauseInBackground) {
+            clearInterval(timer);
+            timer = -1;
+          }
         } else {
           updateCodes();
           if (timer === -1) {

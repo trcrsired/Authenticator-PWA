@@ -26,6 +26,7 @@ interface UserSettingsData {
   advisorIgnoreList?: string[];
   autolock?: number;
   enableContextMenu?: boolean;
+  pauseInBackground?: boolean;
   requireUserVerification?: boolean;
   requireUnlockVerification?: boolean;
   uvCredentialId?: string;
@@ -185,6 +186,7 @@ type BooleanOption =
   | "oneDriveBusiness"
   | "oneDriveEncrypted"
   | "oneDriveRevoked"
+  | "pauseInBackground"
   | "requireUnlockVerification"
   | "requireUserVerification"
   | "smartFilter";
@@ -203,6 +205,7 @@ function isBooleanOption(key: string): key is BooleanOption {
     "oneDriveBusiness",
     "oneDriveEncrypted",
     "oneDriveRevoked",
+    "pauseInBackground",
     "requireUnlockVerification",
     "requireUserVerification",
     "smartFilter",

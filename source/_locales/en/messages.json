@@ -561,5 +561,9 @@
   },
   "activate_auto_filter": {
     "message": "Warning: Smart filter loosely matches the domain name to an account. Always verify that you are on the correct website before entering a code!"
+  },
+  "pause_in_background": {
+    "message": "Pause the countdown while the app is in the background",
+    "description": "Pause OTP countdown updates when the app is not visible"
   }
 }

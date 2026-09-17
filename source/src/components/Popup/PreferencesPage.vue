@@ -45,6 +45,10 @@
       :label="i18n.require_unlock_verification"
       v-model="unlockVerification"
     />
+    <a-toggle-input
+      :label="i18n.pause_in_background"
+      v-model="pauseInBackground"
+    />
 
     <div class="control-group" v-show="!!defaultEncryption">
       <label class="combo-label">{{ i18n.autolock }}</label>
@@ -119,6 +123,14 @@ export default Vue.extend({
           "notification/alert",
           this.i18n.activate_auto_filter
         );
+      },
+    },
+    pauseInBackground: {
+      get(): boolean {
+        return this.$store.state.menu.pauseInBackground;
+      },
+      set(enabled: boolean) {
+        this.$store.commit("menu/setPauseInBackground", enabled);
       },
     },
     theme: {
